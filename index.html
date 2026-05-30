@@ -1048,8 +1048,7 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-    </script>
+    <!-- Tesseract loaded dynamically when OCR is used -->
     <script>
         (function() {
             // ==================== Articles ====================
@@ -1488,6 +1487,21 @@
                 dom.ocrStatus.classList.remove('visible');
             }
 
+            let tesseractLoaded = false;
+
+            async function loadTesseract() {
+                if (tesseractLoaded) return;
+                setOcrStatus('loading', '正在加载识别引擎（约4MB）...');
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error('引擎加载失败，请检查网络'));
+                    document.head.appendChild(script);
+                });
+                tesseractLoaded = true;
+            }
+
             async function startOcr() {
                 if (!state.ocrImageData && !state.ocrImageFile) {
                     showToast('⚠️ 请先选择或粘贴截图');
@@ -1498,9 +1512,11 @@
                 if (!imgSource) return;
 
                 dom.btnStartOcr.disabled = true;
-                setOcrStatus('loading', '正在识别图片中的英文文字...');
 
                 try {
+                    await loadTesseract();
+                    setOcrStatus('loading', '正在识别图片中的英文文字...');
+
                     const result = await Tesseract.recognize(imgSource, 'eng', {
                         logger: (info) => {
                             if (info.status === 'recognizing text') {
@@ -1551,6 +1567,23 @@
             }
 
             // ==================== Speech ====================
+            let speechUnlocked = false;
+
+            function unlockSpeech() {
+                if (speechUnlocked) return;
+                // Mobile browsers require a user gesture to enable speech
+                const utterance = new SpeechSynthesisUtterance('');
+                utterance.volume = 0;
+                utterance.rate = 1;
+                window.speechSynthesis.speak(utterance);
+                speechUnlocked = true;
+                console.log('🔓 Speech unlocked');
+            }
+
+            // Unlock speech on first user interaction anywhere
+            document.addEventListener('click', unlockSpeech, { once: true });
+            document.addEventListener('touchstart', unlockSpeech, { once: true });
+
             function getVoices() {
                 return window.speechSynthesis.getVoices();
             }
