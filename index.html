@@ -310,7 +310,7 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   const S = {
     sentences:[], curIdx:-1, playing:false, paused:false, rate:0.75,
     articleIdx:0, tab:'articles', theme:'light',
-    ocrImg:null, speechReady:false
+    ocrImg:null
   };
 
   // ===== DOM =====
@@ -363,50 +363,47 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   }
 
   // ===== SPEECH =====
-  let currentUtterance=null;
+  let _speaking=false;
+  let _utterance=null;
 
-  function unlockSpeech(){
-    if(S.speechReady) return;
-    try{
-      window.speechSynthesis.resume();
-      const u=new SpeechSynthesisUtterance('');
-      u.volume=0;window.speechSynthesis.speak(u);
-      S.speechReady=true;
-    }catch(e){}
-  }
-
-  function doSpeak(text,isFollowUp){
+  function doSpeak(text){
     return new Promise(resolve=>{
+      _utterance=new SpeechSynthesisUtterance(text);
+      _utterance.rate=S.rate;
+      _utterance.pitch=1;
+      _utterance.volume=1;
+      // iOS: set voice without calling getVoices() if possible, to avoid breaking gesture
       try{
-        window.speechSynthesis.resume();
-        // Only cancel if this is a follow-up (auto-advance), not a direct user click
-        if(isFollowUp) window.speechSynthesis.cancel();
-      }catch(e){}
-      try{
-        const u=new SpeechSynthesisUtterance(text);
-        u.rate=S.rate;u.pitch=1;u.volume=1;
-        const voices=window.speechSynthesis.getVoices();
+        const voices=speechSynthesis.getVoices();
         const en=voices.filter(v=>v.lang.startsWith('en'));
         if(en.length>0){
           const idx=parseInt(D.voiceSelect.value);
-          if(!isNaN(idx)&&en[idx]) u.voice=en[idx];
+          if(!isNaN(idx)&&en[idx]) _utterance.voice=en[idx];
         }
-        currentUtterance=u;
-        const to=setTimeout(()=>{if(currentUtterance===u){currentUtterance=null;resolve();}},Math.max(6000,text.length*80));
-        u.onend=()=>{clearTimeout(to);if(currentUtterance===u){currentUtterance=null;resolve();}};
-        u.onerror=e=>{clearTimeout(to);if(currentUtterance===u)currentUtterance=null;
-          resolve();
-        };
-        window.speechSynthesis.speak(u);
-      }catch(e){resolve();}
+      }catch(e){}
+      _utterance.onstart=()=>{_speaking=true};
+      _utterance.onend=()=>{_speaking=false;_utterance=null;resolve()};
+      _utterance.onerror=()=>{_speaking=false;_utterance=null;resolve()};
+      // iOS fail-safe timeout
+      const timeout=Math.max(8000,text.length*100);
+      setTimeout(()=>{if(_utterance){_utterance=null;resolve()}},timeout);
+      speechSynthesis.speak(_utterance);
     });
+  }
+
+  function stopSpeech(){
+    if(_speaking||_utterance){
+      try{speechSynthesis.cancel()}catch(e){}
+      _utterance=null;_speaking=false;
+    }
   }
 
   async function speakOne(idx,autoNext){
     const txt=S.sentences[idx];if(!txt)return;
-    // For auto-advance (follow-up), we cancel previous; for first click, don't cancel (iOS needs direct gesture)
-    await doSpeak(txt, autoNext && idx !== 0);
-    if(!S.playing&&!autoNext)return;if(S.paused)return;
+    if(autoNext) stopSpeech();
+    await doSpeak(txt);
+    if(!S.playing&&!autoNext)return;
+    if(S.paused)return;
     if(autoNext&&S.playing&&!S.paused){
       const nxt=idx+1;
       if(nxt<S.sentences.length){
@@ -417,14 +414,12 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   }
 
   function stop(){
-    try{window.speechSynthesis.cancel();}catch(e){}
-    currentUtterance=null;
+    stopSpeech();
     S.playing=false;S.paused=false;S.curIdx=-1;
     updateCtrls();clearHL();updateUI();
   }
   function pause(){
-    try{window.speechSynthesis.cancel();}catch(e){}
-    currentUtterance=null;
+    stopSpeech();
     S.paused=true;S.playing=false;updateCtrls();
   }
 
@@ -475,9 +470,6 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   }
 
   async function playSingle(idx){
-    unlockSpeech();
-    try{window.speechSynthesis.cancel();}catch(e){}
-    currentUtterance=null;
     S.playing=false;S.paused=false;S.curIdx=idx;
     highlight(idx);updateUI();updateCtrls();
     await speakOne(idx,false);
@@ -585,7 +577,7 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   // ===== EVENTS =====
   D.btnPlay.addEventListener('click',()=>{
     if(S.sentences.length===0){toast('⚠️ 没有可播放的内容');return;}
-    unlockSpeech();S.playing=true;S.paused=false;S.curIdx=0;
+    S.playing=true;S.paused=false;S.curIdx=0;
     highlight(0);updateUI();updateCtrls();speakOne(0,true);
   });
   D.btnPause.addEventListener('click',()=>{
@@ -595,8 +587,7 @@ input[type=range]{width:80px;accent-color:var(--pri)}
   D.btnStop.addEventListener('click',()=>{stop();toast('⏹ 已停止')});
   D.btnRepeat.addEventListener('click',()=>{
     if(S.curIdx>=0&&S.curIdx<S.sentences.length){
-      unlockSpeech();try{window.speechSynthesis.cancel();}catch(e){}
-      currentUtterance=null;highlight(S.curIdx);speakOne(S.curIdx,S.playing&&!S.paused);
+      highlight(S.curIdx);speakOne(S.curIdx,S.playing&&!S.paused);
     }else toast('请先点击一个句子');
   });
   D.speedSlider.addEventListener('input',()=>{S.rate=+D.speedSlider.value;D.speedVal.textContent=S.rate.toFixed(1)+'x'});
@@ -671,9 +662,6 @@ input[type=range]{width:80px;accent-color:var(--pri)}
     // Restore link
     const lu=localStorage.getItem('ep-link-url');const lt=localStorage.getItem('ep-link-text');
     if(lu)D.linkUrl.value=lu;if(lt){D.linkUrl.dataset.content=lt;D.linkUrl.dataset.title=localStorage.getItem('ep-link-title')||'';document.querySelector('#linkPanel .btn-out').style.display=''}
-    // Unlock speech on first touch
-    document.addEventListener('click',unlockSpeech,{once:true});
-    document.addEventListener('touchend',unlockSpeech,{once:true});
     // Render
     renderSentences();
   }
