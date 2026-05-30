@@ -212,8 +212,8 @@ input[type=range]{width:80px;accent-color:var(--pri)}
       <button class="btn btn-out btn-sm" id="btnRepeat">🔄</button>
     </div>
     <div class="ctrl-opts">
-      语速 <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.9">
-      <span class="speed-val" id="speedVal">0.9x</span>
+      语速 <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.75">
+      <span class="speed-val" id="speedVal">0.75x</span>
       <span style="margin-left:4px">语音</span>
       <select id="voiceSelect"></select>
     </div>
@@ -308,7 +308,7 @@ input[type=range]{width:80px;accent-color:var(--pri)}
 
   // ===== STATE =====
   const S = {
-    sentences:[], curIdx:-1, playing:false, paused:false, rate:0.9,
+    sentences:[], curIdx:-1, playing:false, paused:false, rate:0.75,
     articleIdx:0, tab:'articles', theme:'light',
     ocrImg:null, speechReady:false
   };
@@ -375,37 +375,37 @@ input[type=range]{width:80px;accent-color:var(--pri)}
     }catch(e){}
   }
 
-  function doSpeak(text){
+  function doSpeak(text,isFollowUp){
     return new Promise(resolve=>{
-      try{window.speechSynthesis.resume();}catch(e){}
-      try{window.speechSynthesis.cancel();}catch(e){}
-      currentUtterance=null;
-      setTimeout(()=>{
-        try{
-          const u=new SpeechSynthesisUtterance(text);
-          u.rate=S.rate;u.pitch=1;u.volume=1;
-          const voices=window.speechSynthesis.getVoices();
-          const en=voices.filter(v=>v.lang.startsWith('en'));
-          if(en.length>0){
-            const idx=parseInt(D.voiceSelect.value);
-            if(!isNaN(idx)&&en[idx]) u.voice=en[idx];
-          }
-          currentUtterance=u;
-          const to=setTimeout(()=>{if(currentUtterance===u){currentUtterance=null;resolve();}},Math.max(5000,text.length*80));
-          u.onend=()=>{clearTimeout(to);if(currentUtterance===u){currentUtterance=null;resolve();}};
-          u.onerror=e=>{clearTimeout(to);if(currentUtterance===u)currentUtterance=null;
-            if(e.error!=='canceled'&&e.error!=='interrupted')toast('⚠️ 语音失败，再点一次');
-            resolve();
-          };
-          window.speechSynthesis.speak(u);
-        }catch(e){resolve();}
-      },60);
+      try{
+        window.speechSynthesis.resume();
+        // Only cancel if this is a follow-up (auto-advance), not a direct user click
+        if(isFollowUp) window.speechSynthesis.cancel();
+      }catch(e){}
+      try{
+        const u=new SpeechSynthesisUtterance(text);
+        u.rate=S.rate;u.pitch=1;u.volume=1;
+        const voices=window.speechSynthesis.getVoices();
+        const en=voices.filter(v=>v.lang.startsWith('en'));
+        if(en.length>0){
+          const idx=parseInt(D.voiceSelect.value);
+          if(!isNaN(idx)&&en[idx]) u.voice=en[idx];
+        }
+        currentUtterance=u;
+        const to=setTimeout(()=>{if(currentUtterance===u){currentUtterance=null;resolve();}},Math.max(6000,text.length*80));
+        u.onend=()=>{clearTimeout(to);if(currentUtterance===u){currentUtterance=null;resolve();}};
+        u.onerror=e=>{clearTimeout(to);if(currentUtterance===u)currentUtterance=null;
+          resolve();
+        };
+        window.speechSynthesis.speak(u);
+      }catch(e){resolve();}
     });
   }
 
   async function speakOne(idx,autoNext){
     const txt=S.sentences[idx];if(!txt)return;
-    await doSpeak(txt);
+    // For auto-advance (follow-up), we cancel previous; for first click, don't cancel (iOS needs direct gesture)
+    await doSpeak(txt, autoNext && idx !== 0);
     if(!S.playing&&!autoNext)return;if(S.paused)return;
     if(autoNext&&S.playing&&!S.paused){
       const nxt=idx+1;
