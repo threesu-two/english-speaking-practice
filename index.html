@@ -1568,108 +1568,87 @@
 
             // ==================== Speech ====================
             let speechUnlocked = false;
+            let currentUtterance = null;
 
             function unlockSpeech() {
                 if (speechUnlocked) return;
                 // Mobile browsers require a user gesture to enable speech
-                const utterance = new SpeechSynthesisUtterance('');
-                utterance.volume = 0;
-                utterance.rate = 1;
-                window.speechSynthesis.speak(utterance);
+                // iOS fix: speechSynthesis can get into a paused state
+                window.speechSynthesis.resume();
+                const u = new SpeechSynthesisUtterance('hello');
+                u.volume = 0;
+                window.speechSynthesis.speak(u);
                 speechUnlocked = true;
                 console.log('🔓 Speech unlocked');
             }
 
-            // Unlock speech on first user interaction anywhere
+            // Unlock speech on first user interaction
             document.addEventListener('click', unlockSpeech, { once: true });
-            document.addEventListener('touchstart', unlockSpeech, { once: true });
+            document.addEventListener('touchend', unlockSpeech, { once: true });
 
-            function getVoices() {
-                return window.speechSynthesis.getVoices();
-            }
-
-            function populateVoices() {
-                const voices = getVoices();
-                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-
-                dom.voiceSelect.innerHTML = '';
-                if (englishVoices.length === 0) {
-                    const opt = document.createElement('option');
-                    opt.value = '';
-                    opt.textContent = '默认语音';
-                    dom.voiceSelect.appendChild(opt);
-                } else {
-                    englishVoices.forEach((v, i) => {
-                        const opt = document.createElement('option');
-                        opt.value = i;
-                        opt.textContent = `${v.name} (${v.lang})`;
-                        dom.voiceSelect.appendChild(opt);
-                    });
-                    // Default to a good English voice
-                    const preferred = englishVoices.findIndex(
-                        v => v.name.includes('Google') && v.lang === 'en-US'
-                    );
-                    dom.voiceSelect.selectedIndex = preferred >= 0 ? preferred : 0;
-                    state.voice = englishVoices[dom.voiceSelect.selectedIndex];
-                }
-            }
-
-            function getSelectedVoice() {
-                const voices = getVoices();
-                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-                const idx = parseInt(dom.voiceSelect.value);
-                if (!isNaN(idx) && englishVoices[idx]) {
-                    return englishVoices[idx];
-                }
-                return null;
-            }
-
-            function speakSentence(sentenceIdx, autoAdvance = false) {
+            function speak(text) {
                 return new Promise((resolve) => {
+                    // iOS fix: speechSynthesis can pause itself
+                    window.speechSynthesis.resume();
+
+                    // Cancel any previous speech
                     window.speechSynthesis.cancel();
 
-                    const utterance = new SpeechSynthesisUtterance(state.sentences[sentenceIdx]);
-                    utterance.rate = state.rate;
-                    utterance.pitch = 1;
+                    // iOS fix: need a small delay after cancel before new speak
+                    setTimeout(() => {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.rate = state.rate;
+                        utterance.pitch = 1;
+                        utterance.volume = 1;
 
-                    const voice = getSelectedVoice();
-                    if (voice) {
-                        utterance.voice = voice;
-                    }
-
-                    utterance.onend = () => {
-                        if (autoAdvance && state.isPlaying && !state.isPaused) {
-                            const nextIdx = sentenceIdx + 1;
-                            if (nextIdx < state.sentences.length) {
-                                highlightSentence(nextIdx);
-                                state.currentSentenceIdx = nextIdx;
-                                updateProgress();
-                                speakSentence(nextIdx, true);
-                            } else {
-                                // Finished all sentences
-                                stopPlayback();
-                                updateProgress();
-                                showToast('✅ 全文播放完毕！');
+                        // Try to set a voice, but don't fail if none available
+                        const voices = window.speechSynthesis.getVoices();
+                        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                        if (enVoices.length > 0) {
+                            const voiceIdx = parseInt(dom.voiceSelect.value);
+                            if (!isNaN(voiceIdx) && enVoices[voiceIdx]) {
+                                utterance.voice = enVoices[voiceIdx];
                             }
-                        } else {
+                        }
+
+                        currentUtterance = utterance;
+
+                        // Timeout fallback for iOS (sometimes events don't fire)
+                        const timeout = setTimeout(() => {
+                            if (currentUtterance === utterance) {
+                                currentUtterance = null;
+                                resolve();
+                            }
+                        }, (text.length / 10) * 1000 + 3000); // Estimate duration + buffer
+
+                        utterance.onend = () => {
+                            clearTimeout(timeout);
+                            if (currentUtterance === utterance) {
+                                currentUtterance = null;
+                                resolve();
+                            }
+                        };
+
+                        utterance.onerror = (e) => {
+                            clearTimeout(timeout);
+                            if (currentUtterance === utterance) {
+                                currentUtterance = null;
+                            }
+                            if (e.error !== 'canceled' && e.error !== 'interrupted') {
+                                console.error('Speech error:', e.error);
+                                showToast('⚠️ 语音播放失败，请再点一次');
+                            }
                             resolve();
-                        }
-                    };
+                        };
 
-                    utterance.onerror = (e) => {
-                        if (e.error !== 'canceled' && e.error !== 'interrupted') {
-                            console.error('Speech error:', e.error);
-                            showToast('⚠️ 语音播放出错，请重试');
-                        }
-                        resolve();
-                    };
-
-                    window.speechSynthesis.speak(utterance);
+                        window.speechSynthesis.speak(utterance);
+                    }, 50); // Small delay for iOS stability
                 });
             }
 
             function stopPlayback() {
                 window.speechSynthesis.cancel();
+                currentUtterance = null;
                 state.isPlaying = false;
                 state.isPaused = false;
                 state.currentSentenceIdx = -1;
@@ -1680,18 +1659,64 @@
 
             function pausePlayback() {
                 window.speechSynthesis.cancel();
+                currentUtterance = null;
                 state.isPaused = true;
                 state.isPlaying = false;
                 updateControlButtons();
             }
 
-            function resumePlayback() {
+            async function resumePlayback() {
                 state.isPaused = false;
                 state.isPlaying = true;
                 updateControlButtons();
                 if (state.currentSentenceIdx >= 0 && state.currentSentenceIdx < state.sentences.length) {
                     highlightSentence(state.currentSentenceIdx);
-                    speakSentence(state.currentSentenceIdx, true);
+                    await speakSentence(state.currentSentenceIdx, true);
+                }
+            }
+
+            async function speakSentence(sentenceIdx, autoAdvance = false) {
+                const text = state.sentences[sentenceIdx];
+                if (!text) return;
+
+                await speak(text);
+
+                if (!state.isPlaying && !autoAdvance) return;
+                if (state.isPaused) return;
+
+                if (autoAdvance && state.isPlaying && !state.isPaused) {
+                    const nextIdx = sentenceIdx + 1;
+                    if (nextIdx < state.sentences.length) {
+                        state.currentSentenceIdx = nextIdx;
+                        highlightSentence(nextIdx);
+                        updateProgress();
+                        await speakSentence(nextIdx, true);
+                    } else {
+                        stopPlayback();
+                        updateProgress();
+                        showToast('✅ 全文播放完毕！');
+                    }
+                }
+            }
+
+            function populateVoices() {
+                const voices = window.speechSynthesis.getVoices();
+                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+
+                dom.voiceSelect.innerHTML = '';
+                if (englishVoices.length === 0) {
+                    dom.voiceSelect.innerHTML = '<option value="">默认语音</option>';
+                } else {
+                    englishVoices.forEach((v, i) => {
+                        const opt = document.createElement('option');
+                        opt.value = i;
+                        opt.textContent = `${v.name} (${v.lang})`;
+                        dom.voiceSelect.appendChild(opt);
+                    });
+                    const preferred = englishVoices.findIndex(
+                        v => v.name.includes('Google') && v.lang === 'en-US'
+                    );
+                    dom.voiceSelect.selectedIndex = preferred >= 0 ? preferred : 0;
                 }
             }
 
@@ -1826,21 +1851,21 @@
                 return div.innerHTML;
             }
 
-            function playSingleSentence(idx) {
+            async function playSingleSentence(idx) {
                 window.speechSynthesis.cancel();
+                currentUtterance = null;
                 state.isPlaying = false;
                 state.isPaused = false;
                 state.currentSentenceIdx = idx;
                 highlightSentence(idx);
                 updateProgress();
                 updateControlButtons();
-                speakSentence(idx, false).then(() => {
-                    if (!state.isPlaying) {
-                        state.currentSentenceIdx = -1;
-                        clearAllHighlights();
-                        updateProgress();
-                    }
-                });
+                await speakSentence(idx, false);
+                if (!state.isPlaying) {
+                    state.currentSentenceIdx = -1;
+                    clearAllHighlights();
+                    updateProgress();
+                }
             }
 
             // ==================== Article Select ====================
@@ -1907,7 +1932,7 @@
             });
 
             dom.voiceSelect.addEventListener('change', () => {
-                state.voice = getSelectedVoice();
+                // Voice is selected directly in speak() function
             });
 
             dom.articleSelect.addEventListener('change', () => {
