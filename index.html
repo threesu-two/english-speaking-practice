@@ -1,2231 +1,684 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>英语口语练习</title>
-
-    <!-- PWA Meta -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="英语口语">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#f5f0eb" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
-    <link rel="manifest" id="pwaManifest">
-    <style>
-        :root {
-            --bg: #f5f0eb;
-            --card-bg: #ffffff;
-            --text: #2c2c2c;
-            --text-secondary: #666;
-            --primary: #4a90d9;
-            --primary-hover: #357abd;
-            --accent: #e8a87c;
-            --border: #e0d8cf;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.12);
-            --highlight: #fff3cd;
-            --highlight-border: #ffc107;
-            --active: #d4edda;
-            --active-border: #28a745;
-            --header-bg: #ffffff;
-            --tag-bg: #f0e9e0;
-            --tag-text: #8b7355;
-            --slider-track: #d0c8bc;
-            --slider-fill: #4a90d9;
-            --select-bg: #ffffff;
-        }
-
-        [data-theme="dark"] {
-            --bg: #1a1a2e;
-            --card-bg: #252540;
-            --text: #e0e0e0;
-            --text-secondary: #aaa;
-            --primary: #6db3f2;
-            --primary-hover: #4a9de0;
-            --accent: #f0a060;
-            --border: #3a3a55;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.5);
-            --highlight: #3d3520;
-            --highlight-border: #ffc107;
-            --active: #1e3a2f;
-            --active-border: #28a745;
-            --header-bg: #252540;
-            --tag-bg: #3a3a50;
-            --tag-text: #ccc;
-            --slider-track: #3a3a55;
-            --slider-fill: #6db3f2;
-            --select-bg: #252540;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px 16px 60px;
-        }
-
-        /* ========== Header ========== */
-        .header {
-            background: var(--header-bg);
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo {
-            font-size: 28px;
-            line-height: 1;
-        }
-
-        .title {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .theme-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .theme-btn:hover {
-            box-shadow: var(--shadow-hover);
-            transform: scale(1.05);
-        }
-
-        /* ========== Controls ========== */
-        .controls {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-
-        .controls-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-
-        .controls-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74, 144, 217, 0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--border);
-            color: var(--text);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 13px;
-            border-radius: 8px;
-        }
-
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            border-radius: 50%;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            cursor: pointer;
-            color: var(--text);
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .progress-badge {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .slider-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100px;
-            height: 6px;
-            border-radius: 3px;
-            background: var(--slider-track);
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .speed-display {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--primary);
-            min-width: 38px;
-            text-align: center;
-        }
-
-        select {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--select-bg);
-            color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
-            cursor: pointer;
-            max-width: 200px;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* ========== Article Section ========== */
-        .article-section {
-            margin-bottom: 20px;
-        }
-
-        .article-header {
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .article-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .article-meta {
-            font-size: 14px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .difficulty-tag {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            background: var(--tag-bg);
-            color: var(--tag-text);
-        }
-
-        /* ========== Sentence Card ========== */
-        .sentence-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sentence-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px 20px;
-            cursor: pointer;
-            border: 2px solid var(--border);
-            transition: all 0.25s;
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-
-        .sentence-card:hover {
-            border-color: var(--accent);
-            box-shadow: var(--shadow-hover);
-            transform: translateX(4px);
-        }
-
-        .sentence-card.playing {
-            border-color: var(--active-border);
-            background: var(--active);
-            transform: translateX(4px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .sentence-card.pending {
-            border-color: var(--highlight-border);
-            background: var(--highlight);
-        }
-
-        .sentence-number {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            min-width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: var(--tag-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.25s;
-        }
-
-        .sentence-card.playing .sentence-number {
-            background: var(--active-border);
-            color: #fff;
-            animation: pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.15);
-            }
-        }
-
-        .sentence-content {
-            flex: 1;
-            font-size: 17px;
-            line-height: 1.7;
-            color: var(--text);
-            letter-spacing: 0.3px;
-        }
-
-        .sentence-translation {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px dashed var(--border);
-            display: none;
-        }
-
-        .sentence-card.show-translation .sentence-translation {
-            display: block;
-        }
-
-        .play-icon {
-            font-size: 18px;
-            flex-shrink: 0;
-            opacity: 0.5;
-            transition: all 0.25s;
-            margin-top: 1px;
-        }
-
-        .sentence-card:hover .play-icon,
-        .sentence-card.playing .play-icon {
-            opacity: 1;
-        }
-
-        .sentence-card.playing .play-icon {
-            color: var(--active-border);
-            animation: bounce 0.6s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-3px);
-            }
-        }
-
-        /* ========== Custom Text Editor ========== */
-        .custom-editor {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            transition: background 0.3s, box-shadow 0.3s;
-            display: none;
-        }
-
-        .custom-editor.visible {
-            display: block;
-        }
-
-        .custom-editor-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .custom-editor textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 14px;
-            border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 15px;
-            font-family: inherit;
-            line-height: 1.7;
-            resize: vertical;
-            transition: all 0.2s;
-        }
-
-        .custom-editor textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
-        }
-
-        .custom-editor textarea::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.6;
-        }
-
-        .custom-editor-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .custom-editor-hint {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
-
-        /* ========== Link Editor ========== */
-        .link-editor {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            transition: background 0.3s, box-shadow 0.3s;
-            display: none;
-        }
-
-        .link-editor.visible {
-            display: block;
-        }
-
-        .link-editor-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .link-input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .link-input-row input[type="url"] {
-            flex: 1;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .link-input-row input[type="url"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
-        }
-
-        .link-input-row input[type="url"]::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.6;
-        }
-
-        .link-editor-hint {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-            line-height: 1.6;
-        }
-
-        .link-editor-status {
-            margin-top: 10px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .link-editor-status.visible {
-            display: flex;
-        }
-
-        .link-editor-status.loading {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .link-editor-status.success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .link-editor-status.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        [data-theme="dark"] .link-editor-status.loading {
-            background: #3d3520;
-            color: #ffc107;
-        }
-
-        [data-theme="dark"] .link-editor-status.success {
-            background: #1e3a2f;
-            color: #5ddb92;
-        }
-
-        [data-theme="dark"] .link-editor-status.error {
-            background: #3d1f22;
-            color: #f5a0a0;
-        }
-
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top-color: currentColor;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* ========== OCR Editor ========== */
-        .ocr-editor {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            transition: background 0.3s, box-shadow 0.3s;
-            display: none;
-        }
-
-        .ocr-editor.visible {
-            display: block;
-        }
-
-        .ocr-editor-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .ocr-drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: 14px;
-            padding: 40px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.25s;
-            background: var(--bg);
-            position: relative;
-        }
-
-        .ocr-drop-zone:hover,
-        .ocr-drop-zone.drag-over {
-            border-color: var(--primary);
-            background: rgba(74, 144, 217, 0.05);
-        }
-
-        .ocr-drop-zone-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            opacity: 0.8;
-        }
-
-        .ocr-drop-zone-text {
-            font-size: 15px;
-            color: var(--text);
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .ocr-drop-zone-hint {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .ocr-preview {
-            margin-top: 14px;
-            display: none;
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            max-width: 100%;
-            border: 1px solid var(--border);
-        }
-
-        .ocr-preview.visible {
-            display: inline-block;
-        }
-
-        .ocr-preview img {
-            max-width: 100%;
-            max-height: 300px;
-            display: block;
-        }
-
-        .ocr-preview-remove {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ocr-actions {
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ocr-result-area {
-            margin-top: 14px;
-        }
-
-        .ocr-result-area textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 12px;
-            border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 14px;
-            font-family: inherit;
-            line-height: 1.6;
-            resize: vertical;
-        }
-
-        /* ========== Empty / No-voice warning ========== */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* ========== Responsive ========== */
-        @media (max-width: 600px) {
-            .container {
-                padding: 8px 6px 60px;
-            }
-
-            .header {
-                padding: 14px 16px;
-                border-radius: 14px;
-            }
-
-            .controls {
-                padding: 12px 14px;
-                border-radius: 14px;
-            }
-
-            .title {
-                font-size: 17px;
-            }
-
-            .logo {
-                font-size: 24px;
-            }
-
-            .sentence-card {
-                padding: 14px 16px;
-                border-radius: 12px;
-                gap: 10px;
-            }
-
-            .sentence-content {
-                font-size: 17px;
-            }
-
-            .sentence-number {
-                min-width: 30px;
-                height: 30px;
-                font-size: 13px;
-            }
-
-            .btn {
-                padding: 12px 16px;
-                font-size: 14px;
-                border-radius: 10px;
-                min-height: 44px;
-            }
-
-            .btn-sm {
-                padding: 8px 12px;
-                font-size: 13px;
-                min-height: 36px;
-            }
-
-            select {
-                max-width: 130px;
-                font-size: 13px;
-                padding: 10px 8px;
-                min-height: 40px;
-            }
-
-            input[type="range"] {
-                width: 60px;
-            }
-
-            .article-title {
-                font-size: 20px;
-            }
-
-            .controls-row {
-                gap: 6px;
-            }
-
-            .label {
-                font-size: 12px;
-            }
-
-            /* Make drop zone bigger on mobile */
-            .ocr-drop-zone {
-                padding: 30px 16px;
-            }
-
-            .ocr-drop-zone-icon {
-                font-size: 40px;
-            }
-
-            /* Stack link input vertically on mobile */
-            .link-input-row {
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .link-input-row input[type="url"] {
-                width: 100%;
-            }
-
-            .link-input-row .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            /* Full-width buttons in custom/link editors */
-            .custom-editor-actions .btn-primary,
-            .ocr-actions .btn-primary {
-                flex: 1;
-            }
-        }
-
-        /* Phone-sized screens */
-        @media (max-width: 400px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .controls-row:first-child .btn {
-                flex: 1;
-                justify-content: center;
-                padding: 10px 8px;
-                font-size: 13px;
-                min-width: 0;
-            }
-
-            .sentence-content {
-                font-size: 16px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f0eb">
+<title>英语口语练习</title>
+<style>
+:root{
+  --bg:#f5f0eb;--card:#fff;--text:#2c2c2c;--sub:#888;
+  --pri:#4a90d9;--pri2:#357abd;--border:#e0d8cf;
+  --shadow:0 1px 4px rgba(0,0,0,.06);
+  --active:#d4edda;--active2:#28a745;--tag-bg:#f0e9e0;
+  --danger:#e74c3c;
+}
+[data-theme="dark"]{
+  --bg:#1a1a2e;--card:#252540;--text:#e0e0e0;--sub:#aaa;
+  --pri:#6db3f2;--pri2:#4a9de0;--border:#3a3a55;
+  --shadow:0 1px 4px rgba(0,0,0,.3);
+  --active:#1e3a2f;--active2:#28a745;--tag-bg:#3a3a50;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+  line-height:1.6;transition:background .3s,color .3s;
+  -webkit-tap-highlight-color:transparent;
+}
+.app{max-width:720px;margin:0 auto;padding:12px 12px 80px}
+
+/* Header */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border-radius:14px;padding:14px 18px;
+  margin-bottom:10px;box-shadow:var(--shadow);gap:10px;
+}
+.topbar h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.topbar h1 span{font-size:24px}
+.topbar .meta{font-size:12px;color:var(--sub)}
+.theme-btn{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  background:var(--card);font-size:18px;cursor:pointer;flex-shrink:0;
+}
+
+/* Controls Row */
+.ctrl{
+  background:var(--card);border-radius:14px;padding:10px 16px;
+  margin-bottom:10px;box-shadow:var(--shadow);
+}
+.ctrl-btns{
+  display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;
+}
+.ctrl-btns button{flex:1;min-width:60px}
+.ctrl-opts{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;
+}
+
+/* Buttons */
+.btn{
+  padding:10px 14px;border-radius:10px;border:none;font-size:14px;
+  font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
+  white-space:nowrap;
+}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-pri:active{background:var(--pri2);transform:scale(.97)}
+.btn-out{
+  background:transparent;border:1.5px solid var(--border);color:var(--text);
+}
+.btn-out:active{border-color:var(--pri);color:var(--pri)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* Select / Slider */
+select{
+  padding:8px 10px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:13px;
+  font-family:inherit;max-width:150px;
+}
+input[type=range]{width:80px;accent-color:var(--pri)}
+.speed-val{font-weight:700;color:var(--pri);min-width:32px;text-align:center}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{
+  padding:8px 14px;border-radius:20px;border:none;font-size:13px;
+  font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;
+  background:var(--card);color:var(--sub);border:1px solid var(--border);
+}
+.tab.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+/* Article header */
+.art-header{text-align:center;margin-bottom:12px}
+.art-title{font-size:20px;font-weight:700}
+.art-meta{font-size:12px;color:var(--sub);margin-top:2px}
+.tag{
+  display:inline-block;padding:2px 10px;border-radius:10px;
+  font-size:11px;font-weight:600;background:var(--tag-bg);color:var(--sub);
+}
+
+/* Sentence Cards */
+.sentences{display:flex;flex-direction:column;gap:6px}
+.card{
+  background:var(--card);border-radius:12px;padding:14px 16px;
+  border:1.5px solid var(--border);box-shadow:var(--shadow);
+  display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+  transition:.15s;-webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.card:active{transform:scale(.98)}
+.card.playing{
+  border-color:var(--active2);background:var(--active);
+}
+.card .num{
+  width:26px;height:26px;border-radius:50%;background:var(--tag-bg);
+  font-size:11px;font-weight:700;color:var(--sub);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.card.playing .num{background:var(--active2);color:#fff}
+.card .txt{flex:1;font-size:16px;line-height:1.65}
+.card .icon{font-size:16px;opacity:.4;flex-shrink:0}
+.card.playing .icon{opacity:1}
+
+/* Panels */
+.panel{
+  background:var(--card);border-radius:14px;padding:14px 16px;
+  margin-bottom:10px;box-shadow:var(--shadow);display:none;
+}
+.panel.show{display:block}
+.panel h3{font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.panel textarea{
+  width:100%;min-height:140px;padding:12px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);color:var(--text);
+  font-size:15px;font-family:inherit;line-height:1.7;resize:vertical;
+}
+.panel textarea:focus{outline:none;border-color:var(--pri)}
+.panel input[type=url]{
+  width:100%;padding:12px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--bg);color:var(--text);
+  font-size:14px;font-family:inherit;
+}
+.panel-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.hint{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5}
+
+/* Status */
+.status{
+  margin-top:8px;padding:10px 14px;border-radius:8px;font-size:12px;
+  display:none;align-items:center;gap:6px;
+}
+.status.show{display:flex}
+.status.load{background:#fff3cd;color:#856404}
+.status.ok{background:#d4edda;color:#155724}
+.status.err{background:#f8d7da;color:#721c24}
+[data-theme="dark"] .status.load{background:#3d3520;color:#ffc107}
+[data-theme="dark"] .status.ok{background:#1e3a2f;color:#5ddb92}
+[data-theme="dark"] .status.err{background:#3d1f22;color:#f5a0a0}
+.spin{
+  width:14px;height:14px;border:2px solid transparent;
+  border-top-color:currentColor;border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Drop zone */
+.drop{
+  border:2px dashed var(--border);border-radius:14px;padding:30px;
+  text-align:center;background:var(--bg);cursor:pointer;
+}
+.drop em{font-size:36px;display:block;margin-bottom:8px}
+.drop b{font-size:13px;display:block;margin-bottom:4px}
+.drop span{font-size:11px;color:var(--sub)}
+.preview-wrap{position:relative;display:none;margin-top:10px}
+.preview-wrap.show{display:inline-block}
+.preview-wrap img{max-width:100%;max-height:250px;border-radius:8px}
+.preview-wrap .rm-btn{
+  position:absolute;top:6px;right:6px;width:26px;height:26px;
+  border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;
+  cursor:pointer;font-size:14px;
+}
+
+/* Toast */
+.toast{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  background:#333;color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:13px;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.toast.show{opacity:1}
+
+/* Empty */
+.empty{text-align:center;padding:30px;color:var(--sub);font-size:14px}
+</style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <span class="logo">🎙️</span>
-                <div>
-                    <div class="title">英语口语练习</div>
-                    <div class="subtitle">点击句子跟读 · 支持全文播放</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <span id="sentenceCounter" class="progress-badge" title="当前进度"></span>
-                <button class="theme-btn" id="themeToggle" title="切换暗色/亮色模式">🌙</button>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <div class="controls-row">
-                <button class="btn btn-primary" id="btnPlayAll" title="从头播放全文">
-                    ▶ 播放全文
-                </button>
-                <button class="btn btn-outline" id="btnPause" title="暂停 / 继续" disabled>
-                    ⏯️ 暂停
-                </button>
-                <button class="btn btn-outline" id="btnStop" title="停止播放" disabled>
-                    ⏹ 停止
-                </button>
-                <button class="btn btn-outline btn-sm" id="btnRepeat" title="重播当前句">
-                    🔄 重播本句
-                </button>
-            </div>
-            <div class="controls-row">
-                <span class="label">语速</span>
-                <div class="slider-group">
-                    <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.9">
-                    <span class="speed-display" id="speedDisplay">0.9x</span>
-                </div>
-                <span class="label" style="margin-left:8px;">语音</span>
-                <select id="voiceSelect"></select>
-                <span class="label" style="margin-left:8px;">文章</span>
-                <select id="articleSelect"></select>
-                <button class="btn btn-outline btn-sm" id="btnCustomText" style="margin-left:4px;">✏️ 自定义文本</button>
-                <button class="btn btn-outline btn-sm" id="btnLinkMode" style="margin-left:2px;">🔗 链接生成</button>
-                <button class="btn btn-outline btn-sm" id="btnOcrMode" style="margin-left:2px;">📸 截图识别</button>
-            </div>
-        </div>
-
-        <!-- Custom Text Editor -->
-        <div class="custom-editor" id="customEditor">
-            <div class="custom-editor-label">✏️ 粘贴你的英文文章</div>
-            <textarea
-                id="customTextarea"
-                placeholder="在此粘贴任意英文文本...&#10;&#10;例如：&#10;Today was a great day. I went to the park and met some friends. We played basketball for two hours. After that, we had lunch together at a nice restaurant. The food was delicious and the weather was perfect."
-            ></textarea>
-            <div class="custom-editor-hint">💡 文本会按句号、问号、感叹号自动拆分为句子，逐句跟读。</div>
-            <div class="custom-editor-actions">
-                <button class="btn btn-primary" id="btnApplyCustom">✅ 应用文本</button>
-                <button class="btn btn-outline btn-sm" id="btnClearCustom">🗑️ 清空</button>
-                <span class="progress-badge" id="customSavedBadge" style="display:none;">💾 已自动保存</span>
-            </div>
-        </div>
-
-        <!-- Link-to-Article Editor -->
-        <div class="link-editor" id="linkEditor">
-            <div class="link-editor-label">🔗 输入链接，自动生成英语文章</div>
-            <div class="link-input-row">
-                <input type="url" id="linkUrlInput"
-                    placeholder="粘贴任意英文文章链接，例如：https://www.bbc.com/news/article-123456">
-                <button class="btn btn-primary" id="btnFetchLink">🚀 抓取生成</button>
-            </div>
-            <div class="link-editor-hint">
-                💡 支持英文新闻、博客、Wikipedia 等任何网页。系统会自动提取正文内容，拆分为句子供你练习。
-            </div>
-            <div class="link-editor-status" id="linkStatus">
-                <span class="spinner"></span>
-                <span id="linkStatusText">正在抓取网页内容...</span>
-            </div>
-            <div class="custom-editor-actions" style="margin-top:10px;">
-                <button class="btn btn-outline btn-sm" id="btnClearLink" style="display:none;">🗑️ 清除</button>
-                <span class="progress-badge" id="linkSourceBadge" style="display:none;"></span>
-            </div>
-        </div>
-
-        <!-- OCR Screenshot Editor -->
-        <div class="ocr-editor" id="ocrEditor">
-            <div class="ocr-editor-label">📸 截图识别 — 粘贴或拖入截图，自动提取英文</div>
-            <div class="ocr-drop-zone" id="ocrDropZone">
-                <div class="ocr-drop-zone-icon">🖼️</div>
-                <div class="ocr-drop-zone-text">点击选择图片 / 粘贴截图 / 拖拽到此处</div>
-                <div class="ocr-drop-zone-hint">支持 Ctrl+V 粘贴剪贴板截图 · PNG / JPG / WebP</div>
-                <input type="file" id="ocrFileInput" accept="image/*" style="display:none;">
-            </div>
-            <div class="ocr-preview" id="ocrPreview">
-                <img id="ocrPreviewImg" src="" alt="Preview">
-                <button class="ocr-preview-remove" id="ocrPreviewRemove">✕</button>
-            </div>
-            <div class="ocr-actions">
-                <button class="btn btn-primary" id="btnStartOcr">🔍 开始识别</button>
-                <button class="btn btn-outline btn-sm" id="btnClearOcr" style="display:none;">🗑️ 清除</button>
-            </div>
-            <div class="link-editor-status" id="ocrStatus">
-                <span class="spinner"></span>
-                <span id="ocrStatusText">正在识别文字...</span>
-            </div>
-            <div class="ocr-result-area" id="ocrResultArea" style="display:none;">
-                <textarea id="ocrResultText" placeholder="识别结果将显示在这里..."></textarea>
-                <div class="custom-editor-actions" style="margin-top:0;padding-top:8px;">
-                    <button class="btn btn-primary btn-sm" id="btnApplyOcr">✅ 应用文字开始练习</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Article -->
-        <div class="article-section">
-            <div class="article-header">
-                <div class="article-title" id="articleTitle"></div>
-                <div class="article-meta">
-                    <span class="difficulty-tag" id="difficultyTag"></span>
-                    <span id="articleWordCount"></span>
-                </div>
-            </div>
-            <div class="sentence-list" id="sentenceList"></div>
-        </div>
+<div class="app">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div>
+      <h1><span>🎙️</span> 英语口语练习</h1>
+      <div class="meta" id="progressLabel">点击下方句子开始跟读</div>
     </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Tesseract loaded dynamically when OCR is used -->
-    <script>
-        (function() {
-            // ==================== Articles ====================
-            const articles = [{
-                id: 'daily-routine',
-                title: 'My Daily Routine',
-                difficulty: '初级',
-                author: '',
-                content: `I wake up at 6:30 every morning. The first thing I do is drink a glass of warm water. Then I go for a quick jog around the neighborhood for about 20 minutes. After that, I take a shower and get dressed for the day. I usually have a simple breakfast — some toast, eggs, and a cup of coffee. I leave home around 8:00 and take the bus to work. My workday starts at 9:00, and I spend most of the morning answering emails and attending meetings. At noon, I have lunch with my coworkers in the cafeteria. In the afternoon, I focus on my main tasks and projects. I finish work at 6:00 and head back home. In the evening, I like to relax by reading a book or watching a TV show. Sometimes I cook dinner, and sometimes I order takeout. Before going to bed, I plan out my tasks for the next day. I usually fall asleep around 10:30.`,
-                translations: [
-                    '我每天早上六点半起床。',
-                    '我做的第一件事是喝一杯温水。',
-                    '然后我在附近快跑大概二十分钟。',
-                    '之后，我洗个澡，穿好衣服。',
-                    '我通常吃一顿简单的早餐——吐司、鸡蛋和一杯咖啡。',
-                    '我大概八点出门，坐公交去上班。',
-                    '工作日九点开始，我上午大部分时间都在回邮件和开会。',
-                    '中午，我和同事在食堂吃午饭。',
-                    '下午，我专心处理主要的工作和项目。',
-                    '我六点下班回家。',
-                    '晚上，我喜欢看书或者看电视放松。',
-                    '有时候我自己做饭，有时候叫外卖。',
-                    '睡觉前，我会计划好明天的任务。',
-                    '我通常十点半左右入睡。',
-                ]
-            }, {
-                id: 'solar-system',
-                title: 'The Solar System',
-                difficulty: '中级',
-                author: '',
-                content: `The solar system is a fascinating place filled with planets, moons, and stars. At the center of our solar system is the Sun, a massive ball of burning gas that provides light and heat to everything around it. Orbiting the Sun are eight planets, each with its own unique characteristics. Mercury is the closest planet to the Sun and also the smallest. Venus is the brightest planet in our sky and is sometimes called the "morning star." Earth is the third planet from the Sun and the only one known to support life. Mars, often called the Red Planet, has the tallest volcano in the solar system. Jupiter is the largest planet — it is so big that over a thousand Earths could fit inside it! Saturn is famous for its beautiful rings made of ice and rock. Uranus and Neptune are the farthest planets, and they are known as the ice giants. Beyond Neptune lies the Kuiper Belt, home to dwarf planets like Pluto. Scientists continue to explore the solar system using powerful telescopes and space probes. There is still so much we have not yet discovered about our cosmic neighborhood.`
-            }, {
-                id: 'importance-of-reading',
-                title: 'The Importance of Reading',
-                difficulty: '中高级',
-                author: '',
-                content: `Reading is one of the most valuable habits a person can develop. It opens doors to new worlds, ideas, and perspectives that we might never encounter otherwise. When you read regularly, your vocabulary expands naturally without the need for memorization. Your writing skills also improve, because you absorb the rhythm and structure of good writing. Reading exercises your brain in ways that watching videos or scrolling through social media simply cannot match. Studies have shown that people who read frequently tend to have better focus and deeper concentration. Reading fiction, in particular, has been linked to increased empathy and emotional intelligence. It allows you to see the world through someone else's eyes and understand their thoughts and feelings. Nonfiction books, on the other hand, give you access to the knowledge and wisdom of experts in any field. In our fast-paced digital age, taking the time to sit quietly with a book is more important than ever. It gives your mind a break from constant notifications and distractions. Whether it is a novel, a biography, or a self-improvement guide, every book has something to offer. So pick up a book today — your future self will thank you.`
-            }];
-
-            // ==================== State ====================
-            const CUSTOM_ARTICLE_IDX = articles.length; // Last option = custom
-
-            const state = {
-                currentArticleIndex: 0,
-                isCustom: false,
-                isLinkMode: false,
-                isOcrMode: false,
-                ocrImageData: null,
-                ocrImageFile: null,
-                linkSourceUrl: '',
-                linkSourceTitle: '',
-                sentences: [],
-                currentSentenceIdx: -1,
-                isPlaying: false,
-                isPaused: false,
-                rate: 0.9,
-                voice: null,
-                theme: 'light',
-            };
-
-            // ==================== DOM refs ====================
-            const $ = (sel) => document.querySelector(sel);
-            const $$ = (sel) => document.querySelectorAll(sel);
-
-            const dom = {
-                sentenceList: $('#sentenceList'),
-                articleTitle: $('#articleTitle'),
-                articleWordCount: $('#articleWordCount'),
-                difficultyTag: $('#difficultyTag'),
-                sentenceCounter: $('#sentenceCounter'),
-                btnPlayAll: $('#btnPlayAll'),
-                btnPause: $('#btnPause'),
-                btnStop: $('#btnStop'),
-                btnRepeat: $('#btnRepeat'),
-                speedSlider: $('#speedSlider'),
-                speedDisplay: $('#speedDisplay'),
-                voiceSelect: $('#voiceSelect'),
-                articleSelect: $('#articleSelect'),
-                themeToggle: $('#themeToggle'),
-                toast: $('#toast'),
-                customEditor: $('#customEditor'),
-                customTextarea: $('#customTextarea'),
-                btnApplyCustom: $('#btnApplyCustom'),
-                btnClearCustom: $('#btnClearCustom'),
-                customSavedBadge: $('#customSavedBadge'),
-                btnCustomText: $('#btnCustomText'),
-                linkEditor: $('#linkEditor'),
-                linkUrlInput: $('#linkUrlInput'),
-                btnFetchLink: $('#btnFetchLink'),
-                btnClearLink: $('#btnClearLink'),
-                linkStatus: $('#linkStatus'),
-                linkStatusText: $('#linkStatusText'),
-                linkSourceBadge: $('#linkSourceBadge'),
-                btnLinkMode: $('#btnLinkMode'),
-                ocrEditor: $('#ocrEditor'),
-                ocrDropZone: $('#ocrDropZone'),
-                ocrFileInput: $('#ocrFileInput'),
-                ocrPreview: $('#ocrPreview'),
-                ocrPreviewImg: $('#ocrPreviewImg'),
-                ocrPreviewRemove: $('#ocrPreviewRemove'),
-                btnStartOcr: $('#btnStartOcr'),
-                btnClearOcr: $('#btnClearOcr'),
-                btnOcrMode: $('#btnOcrMode'),
-                ocrStatus: $('#ocrStatus'),
-                ocrStatusText: $('#ocrStatusText'),
-                ocrResultArea: $('#ocrResultArea'),
-                ocrResultText: $('#ocrResultText'),
-                btnApplyOcr: $('#btnApplyOcr'),
-            };
-
-            // ==================== Utils ====================
-            function splitSentences(text) {
-                // Split by sentence-ending punctuation followed by space or end
-                const raw = text.match(/[^.!?]+[.!?]+[\s]*/g) || [text];
-                return raw.map(s => s.trim()).filter(s => s.length > 0);
-            }
-
-            function showToast(msg, duration = 2000) {
-                dom.toast.textContent = msg;
-                dom.toast.classList.add('show');
-                clearTimeout(dom.toast._timeout);
-                dom.toast._timeout = setTimeout(() => {
-                    dom.toast.classList.remove('show');
-                }, duration);
-            }
-
-            function getArticle() {
-                if (state.isOcrMode) {
-                    return {
-                        id: 'ocr',
-                        title: '📸 截图识别',
-                        difficulty: 'OCR',
-                        content: dom.ocrResultText.value.trim(),
-                    };
-                }
-                if (state.isLinkMode) {
-                    return {
-                        id: 'link',
-                        title: state.linkSourceTitle || '🔗 链接生成',
-                        difficulty: '链接',
-                        content: dom.linkUrlInput.dataset.fetchedContent || '',
-                    };
-                }
-                if (state.isCustom) {
-                    return {
-                        id: 'custom',
-                        title: '✏️ 自定义文本',
-                        difficulty: '自定义',
-                        content: dom.customTextarea.value.trim(),
-                    };
-                }
-                return articles[state.currentArticleIndex];
-            }
-
-            // ==================== Custom Text Editor ====================
-            function showCustomEditor() {
-                dom.customEditor.classList.add('visible');
-                // Restore saved text
-                const saved = localStorage.getItem('english-practice-custom-text');
-                if (saved && !dom.customTextarea.value) {
-                    dom.customTextarea.value = saved;
-                }
-            }
-
-            function hideCustomEditor() {
-                dom.customEditor.classList.remove('visible');
-            }
-
-            function applyCustomText() {
-                const text = dom.customTextarea.value.trim();
-                if (!text) {
-                    showToast('⚠️ 请先粘贴英文文本');
-                    return;
-                }
-                // Save to localStorage
-                localStorage.setItem('english-practice-custom-text', text);
-                dom.customSavedBadge.style.display = 'inline';
-                setTimeout(() => { dom.customSavedBadge.style.display = 'none'; }, 2000);
-
-                // Render
-                const raw = text.trim();
-                state.sentences = splitSentences(raw);
-                state.currentSentenceIdx = -1;
-                stopPlayback();
-
-                dom.articleTitle.textContent = '✏️ 自定义文本';
-                dom.difficultyTag.textContent = '自定义';
-                const wordCount = raw.split(/\s+/).length;
-                dom.articleWordCount.textContent = ` · ${wordCount} 个单词`;
-                dom.sentenceCounter.textContent = `共 ${state.sentences.length} 句`;
-
-                renderSentencesHTML();
-                showToast('✅ 文本已应用！共 ' + state.sentences.length + ' 句');
-            }
-
-            function clearCustomText() {
-                dom.customTextarea.value = '';
-                localStorage.removeItem('english-practice-custom-text');
-                state.sentences = [];
-                state.currentSentenceIdx = -1;
-                stopPlayback();
-                dom.sentenceList.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">📝 请在上方粘贴英文文本后点击「应用文本」</div>';
-                dom.articleTitle.textContent = '✏️ 自定义文本';
-                dom.difficultyTag.textContent = '自定义';
-                dom.articleWordCount.textContent = '';
-                dom.sentenceCounter.textContent = '共 0 句';
-                showToast('🗑️ 已清空');
-            }
-
-            function autoSaveCustomText() {
-                const text = dom.customTextarea.value.trim();
-                if (text) {
-                    localStorage.setItem('english-practice-custom-text', text);
-                }
-            }
-
-            // ==================== Link-to-Article ====================
-            const JINA_READER = 'https://r.jina.ai/';
-
-            function showLinkEditor() {
-                dom.linkEditor.classList.add('visible');
-                // Hide custom editor
-                hideCustomEditor();
-            }
-
-            function hideLinkEditor() {
-                dom.linkEditor.classList.remove('visible');
-            }
-
-            function setLinkStatus(type, text) {
-                dom.linkStatus.className = 'link-editor-status visible ' + type;
-                dom.linkStatusText.textContent = text;
-                if (type === 'loading') {
-                    dom.linkStatus.querySelector('.spinner').style.display = '';
-                } else {
-                    const spinner = dom.linkStatus.querySelector('.spinner');
-                    if (spinner) spinner.style.display = 'none';
-                }
-            }
-
-            function hideLinkStatus() {
-                dom.linkStatus.classList.remove('visible');
-            }
-
-            async function fetchAndGenerate() {
-                let url = dom.linkUrlInput.value.trim();
-                if (!url) {
-                    showToast('⚠️ 请先输入链接');
-                    return;
-                }
-
-                // Ensure URL has protocol
-                if (!/^https?:\/\//i.test(url)) {
-                    url = 'https://' + url;
-                    dom.linkUrlInput.value = url;
-                }
-
-                // Save URL
-                state.linkSourceUrl = url;
-                localStorage.setItem('english-practice-link-url', url);
-
-                // Show loading
-                dom.btnFetchLink.disabled = true;
-                setLinkStatus('loading', '正在抓取网页内容...');
-
-                try {
-                    const response = await fetch(JINA_READER + url, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'text/plain',
-                        },
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    const text = await response.text();
-
-                    // Jina returns markdown with a title line, then content
-                    // Parse out the title (first line starting with "Title: ")
-                    let title = '';
-                    let content = text;
-
-                    const titleMatch = text.match(/^Title:\s*(.+)$/m);
-                    if (titleMatch) {
-                        title = titleMatch[1].trim();
-                        // Remove the "Title:" line and any leading blank lines after it
-                        content = text.replace(/^Title:\s*.+$/m, '').replace(/^\s*\n+/, '').trim();
-                    }
-
-                    // Clean up markdown formatting but keep sentences intact
-                    // Remove markdown headers (###, ##, #) but keep text
-                    content = content.replace(/^#{1,6}\s+/gm, '');
-                    // Remove markdown bold/italic markers
-                    content = content.replace(/\*\*(.+?)\*\*/g, '$1');
-                    content = content.replace(/\*(.+?)\*/g, '$1');
-                    content = content.replace(/`(.+?)`/g, '$1');
-                    // Remove image syntax
-                    content = content.replace(/!\[.*?\]\(.*?\)/g, '');
-                    // Remove link syntax, keep text
-                    content = content.replace(/\[(.+?)\]\(.*?\)/g, '$1');
-                    // Collapse multiple newlines
-                    content = content.replace(/\n{3,}/g, '\n\n');
-                    // Remove extra whitespace
-                    content = content.trim();
-
-                    if (!content || content.length < 30) {
-                        throw new Error('抓取到的内容太短，可能不是有效的英文文章');
-                    }
-
-                    // Store fetched content
-                    dom.linkUrlInput.dataset.fetchedContent = content;
-                    state.linkSourceTitle = title || new URL(url).hostname;
-                    state.linkSourceUrl = url;
-
-                    // Save to localStorage
-                    try {
-                        localStorage.setItem('english-practice-link-content', content);
-                        localStorage.setItem('english-practice-link-title', state.linkSourceTitle);
-                    } catch (e) {
-                        // Content too large for localStorage, that's okay
-                    }
-
-                    // Parse into sentences and render
-                    const raw = content;
-                    state.sentences = splitSentences(raw);
-                    state.currentSentenceIdx = -1;
-                    stopPlayback();
-
-                    dom.articleTitle.textContent = state.linkSourceTitle || '🔗 链接生成';
-                    dom.difficultyTag.textContent = '链接';
-                    const wordCount = raw.split(/\s+/).length;
-                    dom.articleWordCount.textContent = ` · ${wordCount} 个单词`;
-                    dom.sentenceCounter.textContent = `共 ${state.sentences.length} 句`;
-
-                    renderSentencesHTML();
-
-                    // Update UI
-                    dom.btnClearLink.style.display = '';
-                    dom.linkSourceBadge.textContent = `📎 来源: ${url}`;
-                    dom.linkSourceBadge.style.display = 'inline';
-                    dom.linkUrlInput.value = url; // Show the normalized URL
-
-                    setLinkStatus('success', `✅ 成功！已提取 ${state.sentences.length} 个句子，共 ${wordCount} 个单词`);
-                    showToast('✅ 文章已生成！共 ' + state.sentences.length + ' 句');
-
-                } catch (err) {
-                    console.error('Fetch link error:', err);
-                    setLinkStatus('error', `❌ 抓取失败：${err.message}`);
-                    showToast('❌ 抓取失败，请检查链接后重试');
-                } finally {
-                    dom.btnFetchLink.disabled = false;
-                }
-            }
-
-            function clearLinkArticle() {
-                state.linkSourceUrl = '';
-                state.linkSourceTitle = '';
-                dom.linkUrlInput.value = '';
-                delete dom.linkUrlInput.dataset.fetchedContent;
-                localStorage.removeItem('english-practice-link-url');
-                localStorage.removeItem('english-practice-link-content');
-                localStorage.removeItem('english-practice-link-title');
-                dom.btnClearLink.style.display = 'none';
-                dom.linkSourceBadge.style.display = 'none';
-                hideLinkStatus();
-                state.sentences = [];
-                state.currentSentenceIdx = -1;
-                stopPlayback();
-                dom.sentenceList.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">🔗 输入链接后点击「🚀 抓取生成」开始练习</div>';
-                dom.articleTitle.textContent = '🔗 链接生成';
-                dom.difficultyTag.textContent = '链接';
-                dom.articleWordCount.textContent = '';
-                dom.sentenceCounter.textContent = '共 0 句';
-                showToast('🗑️ 已清除');
-            }
-
-            // ==================== OCR Screenshot ====================
-            function showOcrEditor() {
-                dom.ocrEditor.classList.add('visible');
-            }
-
-            function hideOcrEditor() {
-                dom.ocrEditor.classList.remove('visible');
-            }
-
-            function isValidImageType(file) {
-                return file && file.type.startsWith('image/');
-            }
-
-            function loadOcrImage(file) {
-                if (!isValidImageType(file)) {
-                    showToast('⚠️ 请选择图片文件');
-                    return;
-                }
-                state.ocrImageFile = file;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    state.ocrImageData = e.target.result;
-                    dom.ocrPreviewImg.src = state.ocrImageData;
-                    dom.ocrPreview.classList.add('visible');
-                    dom.btnClearOcr.style.display = '';
-                    dom.ocrResultArea.style.display = 'none';
-                    dom.ocrResultText.value = '';
-                    hideOcrStatus();
-                };
-                reader.readAsDataURL(file);
-            }
-
-            function clearOcrImage() {
-                state.ocrImageData = null;
-                state.ocrImageFile = null;
-                dom.ocrPreviewImg.src = '';
-                dom.ocrPreview.classList.remove('visible');
-                dom.btnClearOcr.style.display = 'none';
-                dom.ocrFileInput.value = '';
-                dom.ocrResultArea.style.display = 'none';
-                dom.ocrResultText.value = '';
-                hideOcrStatus();
-            }
-
-            function setOcrStatus(type, text) {
-                dom.ocrStatus.className = 'link-editor-status visible ' + type;
-                dom.ocrStatusText.textContent = text;
-                if (type === 'loading') {
-                    const spinner = dom.ocrStatus.querySelector('.spinner');
-                    if (spinner) spinner.style.display = '';
-                } else {
-                    const spinner = dom.ocrStatus.querySelector('.spinner');
-                    if (spinner) spinner.style.display = 'none';
-                }
-            }
-
-            function hideOcrStatus() {
-                dom.ocrStatus.classList.remove('visible');
-            }
-
-            let tesseractLoaded = false;
-
-            async function loadTesseract() {
-                if (tesseractLoaded) return;
-                setOcrStatus('loading', '正在加载识别引擎（约4MB）...');
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-                    script.onload = resolve;
-                    script.onerror = () => reject(new Error('引擎加载失败，请检查网络'));
-                    document.head.appendChild(script);
-                });
-                tesseractLoaded = true;
-            }
-
-            async function startOcr() {
-                if (!state.ocrImageData && !state.ocrImageFile) {
-                    showToast('⚠️ 请先选择或粘贴截图');
-                    return;
-                }
-
-                const imgSource = state.ocrImageData || state.ocrImageFile;
-                if (!imgSource) return;
-
-                dom.btnStartOcr.disabled = true;
-
-                try {
-                    await loadTesseract();
-                    setOcrStatus('loading', '正在识别图片中的英文文字...');
-
-                    const result = await Tesseract.recognize(imgSource, 'eng', {
-                        logger: (info) => {
-                            if (info.status === 'recognizing text') {
-                                const pct = Math.round(info.progress * 100);
-                                dom.ocrStatusText.textContent = `正在识别: ${pct}%...`;
-                            }
-                        },
-                    });
-
-                    const text = result.data.text.trim();
-                    if (!text || text.length < 3) {
-                        setOcrStatus('error', '❌ 未识别到英文文字，请确保截图中有清晰的英文');
-                        return;
-                    }
-
-                    dom.ocrResultText.value = text;
-                    dom.ocrResultArea.style.display = 'block';
-                    setOcrStatus('success', `✅ 识别完成！共 ${text.split(/\s+/).length} 个单词`);
-
-                } catch (err) {
-                    console.error('OCR error:', err);
-                    setOcrStatus('error', '❌ 识别失败，请重试');
-                    showToast('❌ OCR识别失败');
-                } finally {
-                    dom.btnStartOcr.disabled = false;
-                }
-            }
-
-            function applyOcrText() {
-                const text = dom.ocrResultText.value.trim();
-                if (!text) {
-                    showToast('⚠️ 没有可用的识别文字');
-                    return;
-                }
-
-                state.sentences = splitSentences(text);
-                state.currentSentenceIdx = -1;
-                stopPlayback();
-
-                dom.articleTitle.textContent = '📸 截图识别';
-                dom.difficultyTag.textContent = 'OCR';
-                const wordCount = text.split(/\s+/).length;
-                dom.articleWordCount.textContent = ` · ${wordCount} 个单词`;
-                dom.sentenceCounter.textContent = `共 ${state.sentences.length} 句`;
-
-                renderSentencesHTML();
-                showToast('✅ 已应用！共 ' + state.sentences.length + ' 句');
-            }
-
-            // ==================== Speech ====================
-            let speechUnlocked = false;
-            let currentUtterance = null;
-
-            function unlockSpeech() {
-                if (speechUnlocked) return;
-                // Mobile browsers require a user gesture to enable speech
-                // iOS fix: speechSynthesis can get into a paused state
-                window.speechSynthesis.resume();
-                const u = new SpeechSynthesisUtterance('hello');
-                u.volume = 0;
-                window.speechSynthesis.speak(u);
-                speechUnlocked = true;
-                console.log('🔓 Speech unlocked');
-            }
-
-            // Unlock speech on first user interaction
-            document.addEventListener('click', unlockSpeech, { once: true });
-            document.addEventListener('touchend', unlockSpeech, { once: true });
-
-            function speak(text) {
-                return new Promise((resolve) => {
-                    // iOS fix: speechSynthesis can pause itself
-                    window.speechSynthesis.resume();
-
-                    // Cancel any previous speech
-                    window.speechSynthesis.cancel();
-
-                    // iOS fix: need a small delay after cancel before new speak
-                    setTimeout(() => {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.rate = state.rate;
-                        utterance.pitch = 1;
-                        utterance.volume = 1;
-
-                        // Try to set a voice, but don't fail if none available
-                        const voices = window.speechSynthesis.getVoices();
-                        const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                        if (enVoices.length > 0) {
-                            const voiceIdx = parseInt(dom.voiceSelect.value);
-                            if (!isNaN(voiceIdx) && enVoices[voiceIdx]) {
-                                utterance.voice = enVoices[voiceIdx];
-                            }
-                        }
-
-                        currentUtterance = utterance;
-
-                        // Timeout fallback for iOS (sometimes events don't fire)
-                        const timeout = setTimeout(() => {
-                            if (currentUtterance === utterance) {
-                                currentUtterance = null;
-                                resolve();
-                            }
-                        }, (text.length / 10) * 1000 + 3000); // Estimate duration + buffer
-
-                        utterance.onend = () => {
-                            clearTimeout(timeout);
-                            if (currentUtterance === utterance) {
-                                currentUtterance = null;
-                                resolve();
-                            }
-                        };
-
-                        utterance.onerror = (e) => {
-                            clearTimeout(timeout);
-                            if (currentUtterance === utterance) {
-                                currentUtterance = null;
-                            }
-                            if (e.error !== 'canceled' && e.error !== 'interrupted') {
-                                console.error('Speech error:', e.error);
-                                showToast('⚠️ 语音播放失败，请再点一次');
-                            }
-                            resolve();
-                        };
-
-                        window.speechSynthesis.speak(utterance);
-                    }, 50); // Small delay for iOS stability
-                });
-            }
-
-            function stopPlayback() {
-                window.speechSynthesis.cancel();
-                currentUtterance = null;
-                state.isPlaying = false;
-                state.isPaused = false;
-                state.currentSentenceIdx = -1;
-                updateControlButtons();
-                clearAllHighlights();
-                updateProgress();
-            }
-
-            function pausePlayback() {
-                window.speechSynthesis.cancel();
-                currentUtterance = null;
-                state.isPaused = true;
-                state.isPlaying = false;
-                updateControlButtons();
-            }
-
-            async function resumePlayback() {
-                state.isPaused = false;
-                state.isPlaying = true;
-                updateControlButtons();
-                if (state.currentSentenceIdx >= 0 && state.currentSentenceIdx < state.sentences.length) {
-                    highlightSentence(state.currentSentenceIdx);
-                    await speakSentence(state.currentSentenceIdx, true);
-                }
-            }
-
-            async function speakSentence(sentenceIdx, autoAdvance = false) {
-                const text = state.sentences[sentenceIdx];
-                if (!text) return;
-
-                await speak(text);
-
-                if (!state.isPlaying && !autoAdvance) return;
-                if (state.isPaused) return;
-
-                if (autoAdvance && state.isPlaying && !state.isPaused) {
-                    const nextIdx = sentenceIdx + 1;
-                    if (nextIdx < state.sentences.length) {
-                        state.currentSentenceIdx = nextIdx;
-                        highlightSentence(nextIdx);
-                        updateProgress();
-                        await speakSentence(nextIdx, true);
-                    } else {
-                        stopPlayback();
-                        updateProgress();
-                        showToast('✅ 全文播放完毕！');
-                    }
-                }
-            }
-
-            function populateVoices() {
-                const voices = window.speechSynthesis.getVoices();
-                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-
-                dom.voiceSelect.innerHTML = '';
-                if (englishVoices.length === 0) {
-                    dom.voiceSelect.innerHTML = '<option value="">默认语音</option>';
-                } else {
-                    englishVoices.forEach((v, i) => {
-                        const opt = document.createElement('option');
-                        opt.value = i;
-                        opt.textContent = `${v.name} (${v.lang})`;
-                        dom.voiceSelect.appendChild(opt);
-                    });
-                    const preferred = englishVoices.findIndex(
-                        v => v.name.includes('Google') && v.lang === 'en-US'
-                    );
-                    dom.voiceSelect.selectedIndex = preferred >= 0 ? preferred : 0;
-                }
-            }
-
-            // ==================== Highlighting ====================
-            function clearAllHighlights() {
-                $$('.sentence-card').forEach(card => {
-                    card.classList.remove('playing', 'pending');
-                });
-                dom.sentenceCounter.textContent = '';
-            }
-
-            function highlightSentence(idx) {
-                clearAllHighlights();
-                const cards = $$('.sentence-card');
-                cards.forEach((card, i) => {
-                    if (i === idx) {
-                        card.classList.add('playing');
-                    }
-                });
-            }
-
-            function updateProgress() {
-                const total = state.sentences.length;
-                if (state.currentSentenceIdx >= 0 && state.currentSentenceIdx < total) {
-                    dom.sentenceCounter.textContent = `${state.currentSentenceIdx + 1} / ${total}`;
-                } else {
-                    dom.sentenceCounter.textContent = `共 ${total} 句`;
-                }
-            }
-
-            function resetModeButtons() {
-                dom.btnCustomText.style.background = 'transparent';
-                dom.btnCustomText.style.color = '';
-                dom.btnCustomText.style.borderColor = '';
-                dom.btnLinkMode.style.background = 'transparent';
-                dom.btnLinkMode.style.color = '';
-                dom.btnLinkMode.style.borderColor = '';
-                dom.btnOcrMode.style.background = 'transparent';
-                dom.btnOcrMode.style.color = '';
-                dom.btnOcrMode.style.borderColor = '';
-            }
-
-            function updateControlButtons() {
-                if (state.isPlaying || state.isPaused) {
-                    dom.btnPlayAll.disabled = true;
-                    dom.btnPause.disabled = false;
-                    dom.btnStop.disabled = false;
-                    dom.btnPause.textContent = state.isPaused ? '▶ 继续' : '⏯️ 暂停';
-                } else {
-                    dom.btnPlayAll.disabled = false;
-                    dom.btnPause.disabled = true;
-                    dom.btnStop.disabled = true;
-                    dom.btnPause.textContent = '⏯️ 暂停';
-                }
-            }
-
-            // ==================== Render ====================
-            function renderSentencesHTML() {
-                const article = getArticle();
-                dom.sentenceList.innerHTML = state.sentences.map((sentence, i) => {
-                    const translation = article.translations ? article.translations[i] : null;
-                    const hasTranslation = !!translation;
-                    return `
-                    <div class="sentence-card${hasTranslation ? ' show-translation' : ''}" data-index="${i}">
-                      <span class="sentence-number">${i + 1}</span>
-                      <div class="sentence-content">
-                        <div class="sentence-en">${escapeHtml(sentence)}</div>
-                        ${hasTranslation ? `<div class="sentence-translation">${escapeHtml(translation)}</div>` : ''}
-                      </div>
-                      <span class="play-icon">🔊</span>
-                    </div>
-                  `;
-                }).join('');
-
-                // Bind click events
-                $$('.sentence-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const idx = parseInt(card.dataset.index);
-                        playSingleSentence(idx);
-                    });
-                });
-            }
-
-            function renderArticle() {
-                const article = getArticle();
-                const raw = article.content.trim();
-                state.sentences = splitSentences(raw);
-                state.currentSentenceIdx = -1;
-                stopPlayback();
-
-                // Show/hide editors & update buttons
-                hideCustomEditor();
-                hideLinkEditor();
-                hideOcrEditor();
-                resetModeButtons();
-
-                if (state.isOcrMode) {
-                    showOcrEditor();
-                    dom.btnOcrMode.style.background = 'var(--primary)';
-                    dom.btnOcrMode.style.color = '#fff';
-                    dom.btnOcrMode.style.borderColor = 'var(--primary)';
-                } else if (state.isLinkMode) {
-                    showLinkEditor();
-                    dom.btnLinkMode.style.background = 'var(--primary)';
-                    dom.btnLinkMode.style.color = '#fff';
-                    dom.btnLinkMode.style.borderColor = 'var(--primary)';
-                } else if (state.isCustom) {
-                    showCustomEditor();
-                    dom.btnCustomText.style.background = 'var(--primary)';
-                    dom.btnCustomText.style.color = '#fff';
-                    dom.btnCustomText.style.borderColor = 'var(--primary)';
-                }
-
-                // Update header
-                dom.articleTitle.textContent = article.title;
-                dom.difficultyTag.textContent = article.difficulty;
-                const wordCount = raw.split(/\s+/).length;
-                dom.articleWordCount.textContent = wordCount ? ` · ${wordCount} 个单词` : '';
-                dom.sentenceCounter.textContent = `共 ${state.sentences.length} 句`;
-
-                // Render sentences
-                if (state.sentences.length > 0) {
-                    renderSentencesHTML();
-                } else if (state.isCustom) {
-                    dom.sentenceList.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">📝 请在上方粘贴英文文本后点击「应用文本」</div>';
-                }
-            }
-
-            function escapeHtml(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
-            async function playSingleSentence(idx) {
-                window.speechSynthesis.cancel();
-                currentUtterance = null;
-                state.isPlaying = false;
-                state.isPaused = false;
-                state.currentSentenceIdx = idx;
-                highlightSentence(idx);
-                updateProgress();
-                updateControlButtons();
-                await speakSentence(idx, false);
-                if (!state.isPlaying) {
-                    state.currentSentenceIdx = -1;
-                    clearAllHighlights();
-                    updateProgress();
-                }
-            }
-
-            // ==================== Article Select ====================
-            function populateArticleSelect() {
-                dom.articleSelect.innerHTML = articles.map((a, i) => {
-                    const diffMap = { '初级': '🟢', '中级': '🟡', '中高级': '🟠' };
-                    return `<option value="${i}">${diffMap[a.difficulty] || ''} ${a.title} (${a.difficulty})</option>`;
-                }).join('');
-                // Add custom text option
-                dom.articleSelect.innerHTML += `<option value="${CUSTOM_ARTICLE_IDX}">✏️ 自定义文本</option>`;
-                dom.articleSelect.selectedIndex = state.isCustom ? CUSTOM_ARTICLE_IDX : state.currentArticleIndex;
-            }
-
-            // ==================== Theme ====================
-            function applyTheme() {
-                document.documentElement.setAttribute('data-theme', state.theme);
-                dom.themeToggle.textContent = state.theme === 'dark' ? '☀️' : '🌙';
-                localStorage.setItem('english-practice-theme', state.theme);
-            }
-
-            function toggleTheme() {
-                state.theme = state.theme === 'dark' ? 'light' : 'dark';
-                applyTheme();
-            }
-
-            // ==================== Event Bindings ====================
-            dom.btnPlayAll.addEventListener('click', () => {
-                if (state.sentences.length === 0) return;
-                state.isPlaying = true;
-                state.isPaused = false;
-                state.currentSentenceIdx = 0;
-                highlightSentence(0);
-                updateProgress();
-                updateControlButtons();
-                speakSentence(0, true);
-            });
-
-            dom.btnPause.addEventListener('click', () => {
-                if (state.isPaused) {
-                    resumePlayback();
-                } else if (state.isPlaying) {
-                    pausePlayback();
-                }
-            });
-
-            dom.btnStop.addEventListener('click', () => {
-                stopPlayback();
-                showToast('⏹ 已停止');
-            });
-
-            dom.btnRepeat.addEventListener('click', () => {
-                if (state.currentSentenceIdx >= 0 && state.currentSentenceIdx < state.sentences.length) {
-                    window.speechSynthesis.cancel();
-                    highlightSentence(state.currentSentenceIdx);
-                    speakSentence(state.currentSentenceIdx, state.isPlaying && !state.isPaused);
-                } else {
-                    showToast('请先点击一个句子或播放全文');
-                }
-            });
-
-            dom.speedSlider.addEventListener('input', () => {
-                state.rate = parseFloat(dom.speedSlider.value);
-                dom.speedDisplay.textContent = state.rate.toFixed(1) + 'x';
-            });
-
-            dom.voiceSelect.addEventListener('change', () => {
-                // Voice is selected directly in speak() function
-            });
-
-            dom.articleSelect.addEventListener('change', () => {
-                const val = parseInt(dom.articleSelect.value);
-                if (val === CUSTOM_ARTICLE_IDX) {
-                    // Keep current custom/link mode
-                    if (!state.isCustom && !state.isLinkMode) {
-                        state.isCustom = true;
-                    }
-                    state.currentArticleIndex = 0;
-                } else {
-                    state.isCustom = false;
-                    state.isLinkMode = false;
-                    state.isOcrMode = false;
-                    state.currentArticleIndex = val;
-                }
-                renderArticle();
-            });
-
-            dom.btnApplyCustom.addEventListener('click', applyCustomText);
-            dom.btnClearCustom.addEventListener('click', clearCustomText);
-
-            dom.btnCustomText.addEventListener('click', () => {
-                state.isCustom = true;
-                state.isLinkMode = false;
-                state.isOcrMode = false;
-                state.currentArticleIndex = 0;
-                dom.articleSelect.value = CUSTOM_ARTICLE_IDX;
-                renderArticle();
-            });
-
-            dom.btnLinkMode.addEventListener('click', () => {
-                state.isLinkMode = true;
-                state.isCustom = false;
-                state.isOcrMode = false;
-                state.currentArticleIndex = 0;
-                dom.articleSelect.value = CUSTOM_ARTICLE_IDX;
-                renderArticle();
-            });
-
-            dom.btnFetchLink.addEventListener('click', fetchAndGenerate);
-            dom.btnClearLink.addEventListener('click', clearLinkArticle);
-
-            // Allow Enter key in URL input to trigger fetch
-            dom.linkUrlInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    fetchAndGenerate();
-                }
-            });
-
-            // OCR mode
-            dom.btnOcrMode.addEventListener('click', () => {
-                state.isOcrMode = true;
-                state.isCustom = false;
-                state.isLinkMode = false;
-                state.currentArticleIndex = 0;
-                dom.articleSelect.value = CUSTOM_ARTICLE_IDX;
-                renderArticle();
-            });
-
-            dom.btnStartOcr.addEventListener('click', startOcr);
-            dom.btnApplyOcr.addEventListener('click', applyOcrText);
-            dom.btnClearOcr.addEventListener('click', clearOcrImage);
-
-            // OCR file input
-            dom.ocrDropZone.addEventListener('click', () => dom.ocrFileInput.click());
-            dom.ocrFileInput.addEventListener('change', (e) => {
-                if (e.target.files && e.target.files[0]) {
-                    loadOcrImage(e.target.files[0]);
-                }
-            });
-            dom.ocrPreviewRemove.addEventListener('click', (e) => {
-                e.stopPropagation();
-                clearOcrImage();
-            });
-
-            // OCR drag & drop
-            dom.ocrDropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dom.ocrDropZone.classList.add('drag-over');
-            });
-            dom.ocrDropZone.addEventListener('dragleave', () => {
-                dom.ocrDropZone.classList.remove('drag-over');
-            });
-            dom.ocrDropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dom.ocrDropZone.classList.remove('drag-over');
-                const file = e.dataTransfer.files[0];
-                if (file) loadOcrImage(file);
-            });
-
-            // Global paste support for OCR (when OCR mode is active)
-            document.addEventListener('paste', (e) => {
-                if (!state.isOcrMode) return;
-                // Don't intercept if pasting into textarea/input
-                if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
-
-                const items = e.clipboardData.items;
-                for (const item of items) {
-                    if (item.type.startsWith('image/')) {
-                        e.preventDefault();
-                        const file = item.getAsFile();
-                        loadOcrImage(file);
-                        showToast('📸 截图已粘贴！点击「开始识别」');
-                        break;
-                    }
-                }
-            });
-
-            // Auto-save custom text on input (debounced)
-            let autoSaveTimer;
-            dom.customTextarea.addEventListener('input', () => {
-                clearTimeout(autoSaveTimer);
-                autoSaveTimer = setTimeout(autoSaveCustomText, 1000);
-            });
-
-            dom.themeToggle.addEventListener('click', toggleTheme);
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Don't trigger shortcuts when typing in inputs
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target
-                    .tagName === 'TEXTAREA') {
-                    return;
-                }
-
-                switch (e.key) {
-                    case ' ':
-                        e.preventDefault();
-                        if (state.isPlaying || state.isPaused) {
-                            dom.btnPause.click();
-                        } else {
-                            dom.btnPlayAll.click();
-                        }
-                        break;
-                    case 'ArrowDown':
-                    case 'ArrowRight':
-                        e.preventDefault();
-                        if (state.currentSentenceIdx < state.sentences.length - 1) {
-                            playSingleSentence(state.currentSentenceIdx + 1);
-                        }
-                        break;
-                    case 'ArrowUp':
-                    case 'ArrowLeft':
-                        e.preventDefault();
-                        if (state.currentSentenceIdx > 0) {
-                            playSingleSentence(state.currentSentenceIdx - 1);
-                        }
-                        break;
-                    case 'Escape':
-                        e.preventDefault();
-                        stopPlayback();
-                        break;
-                    case 'r':
-                    case 'R':
-                        if (!e.ctrlKey && !e.metaKey) {
-                            e.preventDefault();
-                            dom.btnRepeat.click();
-                        }
-                        break;
-                }
-            });
-
-            // ==================== Init ====================
-            // ==================== PWA Setup ====================
-            function setupPWA() {
-                // Create manifest dynamically
-                const manifest = {
-                    name: '英语口语练习',
-                    short_name: '英语口语',
-                    description: '英语口语跟读练习工具 - 逐句跟读、全文播放、截图识别',
-                    start_url: location.href,
-                    display: 'standalone',
-                    orientation: 'portrait',
-                    background_color: '#f5f0eb',
-                    theme_color: '#f5f0eb',
-                    icons: [{
-                        src: 'data:image/svg+xml,' + encodeURIComponent(
-                            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="32" fill="#4a90d9"/><text x="96" y="124" font-size="96" text-anchor="middle">🎙️</text></svg>'
-                            ),
-                        sizes: '192x192',
-                        type: 'image/svg+xml',
-                        purpose: 'any maskable',
-                    }],
-                };
-
-                const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-                const manifestUrl = URL.createObjectURL(blob);
-                document.getElementById('pwaManifest').href = manifestUrl;
-
-                // Register service worker for offline caching
-                if ('serviceWorker' in navigator) {
-                    const swCode = `
-                        const CACHE = 'english-practice-v1';
-                        const ASSETS = [self.location.href];
-
-                        self.addEventListener('install', (e) => {
-                            e.waitUntil(
-                                caches.open(CACHE).then(cache => cache.addAll(ASSETS))
-                                .then(() => self.skipWaiting())
-                            );
-                        });
-
-                        self.addEventListener('activate', (e) => {
-                            e.waitUntil(self.clients.claim());
-                        });
-
-                        self.addEventListener('fetch', (e) => {
-                            // Only cache same-origin requests
-                            if (e.request.url.startsWith(self.location.origin)) {
-                                e.respondWith(
-                                    caches.match(e.request).then(cached =>
-                                        cached || fetch(e.request).then(response => {
-                                            if (response.ok) {
-                                                const clone = response.clone();
-                                                caches.open(CACHE).then(cache => cache.put(e.request, clone));
-                                            }
-                                            return response;
-                                        })
-                                    )
-                                );
-                            }
-                        });
-                    `;
-
-                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(swBlob);
-
-                    navigator.serviceWorker.register(swUrl, { scope: '/' })
-                        .then(() => console.log('📱 PWA Service Worker registered'))
-                        .catch(() => console.log('⚠️ Service Worker registration failed (expected on file://)'));
-                }
-            }
-
-            function init() {
-                // Setup PWA
-                setupPWA();
-
-                // Load theme
-                const savedTheme = localStorage.getItem('english-practice-theme');
-                if (savedTheme === 'dark') {
-                    state.theme = 'dark';
-                }
-                applyTheme();
-
-                // Load saved custom text
-                const savedCustomText = localStorage.getItem('english-practice-custom-text');
-                if (savedCustomText) {
-                    dom.customTextarea.value = savedCustomText;
-                }
-
-                // Load saved link state
-                const savedLinkUrl = localStorage.getItem('english-practice-link-url');
-                const savedLinkContent = localStorage.getItem('english-practice-link-content');
-                const savedLinkTitle = localStorage.getItem('english-practice-link-title');
-                if (savedLinkUrl) {
-                    dom.linkUrlInput.value = savedLinkUrl;
-                }
-                if (savedLinkContent) {
-                    dom.linkUrlInput.dataset.fetchedContent = savedLinkContent;
-                    state.linkSourceTitle = savedLinkTitle || '';
-                    state.linkSourceUrl = savedLinkUrl || '';
-                    dom.btnClearLink.style.display = '';
-                    dom.linkSourceBadge.style.display = 'inline';
-                    dom.linkSourceBadge.textContent = '📎 来源: ' + (savedLinkUrl || '');
-                }
-
-                // Populate voices
-                populateVoices();
-                // Chrome loads voices async
-                if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                    window.speechSynthesis.onvoiceschanged = populateVoices;
-                }
-
-                // Populate article selector
-                populateArticleSelect();
-
-                // Render first article
-                renderArticle();
-
-                console.log('🎙️ 英语口语练习已就绪！');
-                console.log('  点击句子 → 跟读单句');
-                console.log('  播放全文 → 自动连播');
-                console.log('  空格键 → 播放/暂停');
-                console.log('  方向键 → 切换句子');
-                console.log('  R 键 → 重播当前句');
-                console.log('  ESC → 停止');
-                console.log('  文章选择器 → 切换到「✏️ 自定义文本」粘贴自己的内容');
-            }
-
-            init();
-        })();
-    </script>
+    <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl">
+    <div class="ctrl-btns">
+      <button class="btn btn-pri" id="btnPlay">▶ 播放</button>
+      <button class="btn btn-out" id="btnPause" disabled>⏯ 暂停</button>
+      <button class="btn btn-out" id="btnStop" disabled>⏹ 停止</button>
+      <button class="btn btn-out btn-sm" id="btnRepeat">🔄</button>
+    </div>
+    <div class="ctrl-opts">
+      语速 <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.9">
+      <span class="speed-val" id="speedVal">0.9x</span>
+      <span style="margin-left:4px">语音</span>
+      <select id="voiceSelect"></select>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="articles">📚 内置文章</button>
+    <button class="tab" data-tab="custom">✏️ 自定义文本</button>
+    <button class="tab" data-tab="link">🔗 链接生成</button>
+    <button class="tab" data-tab="ocr">📸 截图识别</button>
+  </div>
+
+  <!-- Article Select (articles tab only) -->
+  <div id="articlesPanel" class="panel show">
+    <select id="articleSelect" style="width:100%;max-width:100%"></select>
+  </div>
+
+  <!-- Custom Text Panel -->
+  <div id="customPanel" class="panel">
+    <h3>✏️ 粘贴英文文章</h3>
+    <textarea id="customText" placeholder="在此粘贴任意英文文本..."></textarea>
+    <div class="panel-actions">
+      <button class="btn btn-pri btn-sm" id="btnApplyCustom">✅ 应用</button>
+      <button class="btn btn-out btn-sm" id="btnClearCustom">清空</button>
+    </div>
+    <div class="hint">按句号、问号、感叹号自动拆分句子</div>
+  </div>
+
+  <!-- Link Panel -->
+  <div id="linkPanel" class="panel">
+    <h3>🔗 输入英文文章链接</h3>
+    <input type="url" id="linkUrl" placeholder="https://...">
+    <div class="panel-actions">
+      <button class="btn btn-pri btn-sm" id="btnFetch">🚀 抓取生成</button>
+      <button class="btn btn-out btn-sm" id="btnClearLink" style="display:none">清空</button>
+    </div>
+    <div class="status" id="linkStatus"><span class="spin"></span><span id="linkStatusText"></span></div>
+    <div class="hint">支持 BBC、VOA、Wikipedia 等英文网页</div>
+  </div>
+
+  <!-- OCR Panel -->
+  <div id="ocrPanel" class="panel">
+    <h3>📸 截图识别英文</h3>
+    <div class="drop" id="dropZone">
+      <em>🖼️</em><b>点击 / 粘贴 / 拖拽 截图</b><span>Ctrl+V 粘贴剪贴板截图</span>
+      <input type="file" accept="image/*" id="ocrFile" style="display:none">
+    </div>
+    <div class="preview-wrap" id="ocrPreviewWrap">
+      <img id="ocrPreviewImg" src="">
+      <button class="rm-btn" id="ocrPreviewRm">✕</button>
+    </div>
+    <div class="panel-actions">
+      <button class="btn btn-pri btn-sm" id="btnOcrStart">🔍 开始识别</button>
+      <button class="btn btn-out btn-sm" id="btnOcrClear" style="display:none">清除图片</button>
+    </div>
+    <div class="status" id="ocrStatus"><span class="spin"></span><span id="ocrStatusText"></span></div>
+    <textarea id="ocrResult" style="display:none;margin-top:8px;min-height:80px" placeholder="识别结果..."></textarea>
+    <div class="panel-actions" id="ocrApplyActions" style="display:none">
+      <button class="btn btn-pri btn-sm" id="btnApplyOcr">✅ 应用文字开始练习</button>
+    </div>
+    <div class="hint">适用于英文视频字幕截图、书页拍照等</div>
+  </div>
+
+  <!-- Article Content -->
+  <div class="art-header" id="artHeader">
+    <div class="art-title" id="artTitle"></div>
+    <div class="art-meta"><span class="tag" id="artTag"></span><span id="artInfo"></span></div>
+  </div>
+  <div class="sentences" id="sentences"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // ===== DATA =====
+  const articles = [
+    {
+      id:'daily',title:'My Daily Routine',diff:'初级',
+      content:'I wake up at 6:30 every morning. The first thing I do is drink a glass of warm water. Then I go for a quick jog around the neighborhood for about 20 minutes. After that, I take a shower and get dressed for the day. I usually have a simple breakfast — some toast, eggs, and a cup of coffee. I leave home around 8:00 and take the bus to work. My workday starts at 9:00, and I spend most of the morning answering emails and attending meetings. At noon, I have lunch with my coworkers in the cafeteria. In the afternoon, I focus on my main tasks and projects. I finish work at 6:00 and head back home. In the evening, I like to relax by reading a book or watching a TV show. Sometimes I cook dinner, and sometimes I order takeout. Before going to bed, I plan out my tasks for the next day. I usually fall asleep around 10:30.'
+    },
+    {
+      id:'solar',title:'The Solar System',diff:'中级',
+      content:'The solar system is a fascinating place filled with planets, moons, and stars. At the center of our solar system is the Sun, a massive ball of burning gas that provides light and heat to everything around it. Orbiting the Sun are eight planets, each with its own unique characteristics. Mercury is the closest planet to the Sun and also the smallest. Venus is the brightest planet in our sky and is sometimes called the "morning star." Earth is the third planet from the Sun and the only one known to support life. Mars, often called the Red Planet, has the tallest volcano in the solar system. Jupiter is the largest planet — it is so big that over a thousand Earths could fit inside it! Saturn is famous for its beautiful rings made of ice and rock. Uranus and Neptune are the farthest planets, and they are known as the ice giants. Beyond Neptune lies the Kuiper Belt, home to dwarf planets like Pluto. Scientists continue to explore the solar system using powerful telescopes and space probes. There is still so much we have not yet discovered about our cosmic neighborhood.'
+    },
+    {
+      id:'reading',title:'The Importance of Reading',diff:'中高级',
+      content:'Reading is one of the most valuable habits a person can develop. It opens doors to new worlds, ideas, and perspectives that we might never encounter otherwise. When you read regularly, your vocabulary expands naturally without the need for memorization. Your writing skills also improve, because you absorb the rhythm and structure of good writing. Reading exercises your brain in ways that watching videos or scrolling through social media simply cannot match. Studies have shown that people who read frequently tend to have better focus and deeper concentration. Reading fiction, in particular, has been linked to increased empathy and emotional intelligence. It allows you to see the world through someone else\'s eyes and understand their thoughts and feelings. Nonfiction books, on the other hand, give you access to the knowledge and wisdom of experts in any field. In our fast-paced digital age, taking the time to sit quietly with a book is more important than ever. It gives your mind a break from constant notifications and distractions. Whether it is a novel, a biography, or a self-improvement guide, every book has something to offer. So pick up a book today — your future self will thank you.'
+    }
+  ];
+
+  // ===== STATE =====
+  const S = {
+    sentences:[], curIdx:-1, playing:false, paused:false, rate:0.9,
+    articleIdx:0, tab:'articles', theme:'light',
+    ocrImg:null, speechReady:false
+  };
+
+  // ===== DOM =====
+  const $=s=>document.querySelector(s);
+  const $$=s=>document.querySelectorAll(s);
+  const D={
+    sentences:$('#sentences'),artTitle:$('#artTitle'),artTag:$('#artTag'),artInfo:$('#artInfo'),
+    progressLabel:$('#progressLabel'),
+    btnPlay:$('#btnPlay'),btnPause:$('#btnPause'),btnStop:$('#btnStop'),btnRepeat:$('#btnRepeat'),
+    speedSlider:$('#speedSlider'),speedVal:$('#speedVal'),voiceSelect:$('#voiceSelect'),
+    articleSelect:$('#articleSelect'),
+    themeBtn:$('#themeBtn'),toast:$('#toast'),
+    // tabs
+    articlesPanel:$('#articlesPanel'),customPanel:$('#customPanel'),
+    linkPanel:$('#linkPanel'),ocrPanel:$('#ocrPanel'),
+    customText:$('#customText'),linkUrl:$('#linkUrl'),linkStatus:$('#linkStatus'),linkStatusText:$('#linkStatusText'),
+    ocrStatus:$('#ocrStatus'),ocrStatusText:$('#ocrStatusText'),
+    ocrResult:$('#ocrResult'),ocrApplyActions:$('#ocrApplyActions'),
+    dropZone:$('#dropZone'),ocrFile:$('#ocrFile'),
+    ocrPreviewWrap:$('#ocrPreviewWrap'),ocrPreviewImg:$('#ocrPreviewImg'),
+    artHeader:$('#artHeader'),
+  };
+
+  // ===== UTILS =====
+  function splitSent(txt){
+    const m=txt.match(/[^.!?]+[.!?]+[\s]*/g);
+    return m?m.map(s=>s.trim()).filter(s=>s.length>0):[txt.trim()].filter(s=>s.length>0);
+  }
+  function toast(msg,d=2000){
+    D.toast.textContent=msg;D.toast.classList.add('show');
+    clearTimeout(D.toast._t);D.toast._t=setTimeout(()=>D.toast.classList.remove('show'),d);
+  }
+  function htm(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+  function getText(){
+    if(S.tab==='custom') return D.customText.value.trim();
+    if(S.tab==='link') return D.linkUrl.dataset.content||'';
+    if(S.tab==='ocr') return D.ocrResult.value.trim();
+    return articles[S.articleIdx].content.trim();
+  }
+  function getTitle(){
+    if(S.tab==='custom') return '✏️ 自定义文本';
+    if(S.tab==='link') return D.linkUrl.dataset.title||'🔗 链接生成';
+    if(S.tab==='ocr') return '📸 截图识别';
+    return articles[S.articleIdx].title;
+  }
+  function getDiff(){
+    if(S.tab==='articles') return articles[S.articleIdx].diff;
+    return S.tab==='custom'?'自定义':S.tab==='link'?'链接':'OCR';
+  }
+
+  // ===== SPEECH =====
+  let currentUtterance=null;
+
+  function unlockSpeech(){
+    if(S.speechReady) return;
+    try{
+      window.speechSynthesis.resume();
+      const u=new SpeechSynthesisUtterance('');
+      u.volume=0;window.speechSynthesis.speak(u);
+      S.speechReady=true;
+    }catch(e){}
+  }
+
+  function doSpeak(text){
+    return new Promise(resolve=>{
+      try{window.speechSynthesis.resume();}catch(e){}
+      try{window.speechSynthesis.cancel();}catch(e){}
+      currentUtterance=null;
+      setTimeout(()=>{
+        try{
+          const u=new SpeechSynthesisUtterance(text);
+          u.rate=S.rate;u.pitch=1;u.volume=1;
+          const voices=window.speechSynthesis.getVoices();
+          const en=voices.filter(v=>v.lang.startsWith('en'));
+          if(en.length>0){
+            const idx=parseInt(D.voiceSelect.value);
+            if(!isNaN(idx)&&en[idx]) u.voice=en[idx];
+          }
+          currentUtterance=u;
+          const to=setTimeout(()=>{if(currentUtterance===u){currentUtterance=null;resolve();}},Math.max(5000,text.length*80));
+          u.onend=()=>{clearTimeout(to);if(currentUtterance===u){currentUtterance=null;resolve();}};
+          u.onerror=e=>{clearTimeout(to);if(currentUtterance===u)currentUtterance=null;
+            if(e.error!=='canceled'&&e.error!=='interrupted')toast('⚠️ 语音失败，再点一次');
+            resolve();
+          };
+          window.speechSynthesis.speak(u);
+        }catch(e){resolve();}
+      },60);
+    });
+  }
+
+  async function speakOne(idx,autoNext){
+    const txt=S.sentences[idx];if(!txt)return;
+    await doSpeak(txt);
+    if(!S.playing&&!autoNext)return;if(S.paused)return;
+    if(autoNext&&S.playing&&!S.paused){
+      const nxt=idx+1;
+      if(nxt<S.sentences.length){
+        S.curIdx=nxt;highlight(nxt);updateUI();
+        await speakOne(nxt,true);
+      }else{stop();toast('✅ 播放完毕');}
+    }
+  }
+
+  function stop(){
+    try{window.speechSynthesis.cancel();}catch(e){}
+    currentUtterance=null;
+    S.playing=false;S.paused=false;S.curIdx=-1;
+    updateCtrls();clearHL();updateUI();
+  }
+  function pause(){
+    try{window.speechSynthesis.cancel();}catch(e){}
+    currentUtterance=null;
+    S.paused=true;S.playing=false;updateCtrls();
+  }
+
+  // ===== UI =====
+  function clearHL(){$$('.card').forEach(c=>c.classList.remove('playing'))}
+  function highlight(idx){
+    clearHL();
+    const cards=$$('.card');if(cards[idx])cards[idx].classList.add('playing');
+  }
+  function updateUI(){
+    const t=S.sentences.length;
+    if(S.curIdx>=0&&S.curIdx<t)D.progressLabel.textContent=`${S.curIdx+1} / ${t} 句`;
+    else D.progressLabel.textContent=`共 ${t} 句`;
+  }
+  function updateCtrls(){
+    if(S.playing||S.paused){
+      D.btnPlay.disabled=true;D.btnPause.disabled=false;D.btnStop.disabled=false;
+      D.btnPause.textContent=S.paused?'▶ 继续':'⏯ 暂停';
+    }else{
+      D.btnPlay.disabled=false;D.btnPause.disabled=true;D.btnStop.disabled=true;
+      D.btnPause.textContent='⏯ 暂停';
+    }
+  }
+
+  // ===== RENDER =====
+  function renderSentences(){
+    const article=getText();
+    S.sentences=splitSent(article);
+    S.curIdx=-1;stop();
+    D.artTitle.textContent=getTitle();D.artTag.textContent=getDiff();
+    const wc=article?article.split(/\s+/).length:0;
+    D.artInfo.textContent=wc?` · ${wc} 单词`:'';
+    updateUI();
+    if(S.sentences.length===0){
+      D.sentences.innerHTML='<div class="empty">暂无内容，请选择文章或输入文本</div>';
+      return;
+    }
+    D.sentences.innerHTML=S.sentences.map((s,i)=>`
+      <div class="card" data-i="${i}">
+        <span class="num">${i+1}</span>
+        <span class="txt">${htm(s)}</span>
+        <span class="icon">🔊</span>
+      </div>
+    `).join('');
+    $$('.card').forEach(c=>c.addEventListener('click',()=>{
+      const i=parseInt(c.dataset.i);playSingle(i);
+    }));
+  }
+
+  async function playSingle(idx){
+    unlockSpeech();
+    try{window.speechSynthesis.cancel();}catch(e){}
+    currentUtterance=null;
+    S.playing=false;S.paused=false;S.curIdx=idx;
+    highlight(idx);updateUI();updateCtrls();
+    await speakOne(idx,false);
+    if(!S.playing){S.curIdx=-1;clearHL();updateUI();}
+  }
+
+  // ===== TABS =====
+  function switchTab(tab){
+    S.tab=tab;stop();
+    $$('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    D.articlesPanel.classList.toggle('show',tab==='articles');
+    D.customPanel.classList.toggle('show',tab==='custom');
+    D.linkPanel.classList.toggle('show',tab==='link');
+    D.ocrPanel.classList.toggle('show',tab==='ocr');
+    if(tab==='articles'){
+      D.articleSelect.value=S.articleIdx;
+    }
+    renderSentences();
+  }
+
+  // ===== VOICES =====
+  function loadVoices(){
+    const voices=window.speechSynthesis.getVoices();
+    const en=voices.filter(v=>v.lang.startsWith('en'));
+    D.voiceSelect.innerHTML=en.length===0
+      ?'<option value="">默认</option>'
+      :en.map((v,i)=>`<option value="${i}">${v.name.split(' ')[0]} (${v.lang})</option>`).join('');
+    if(en.length>0){
+      const p=en.findIndex(v=>v.name.includes('Google')&&v.lang==='en-US');
+      D.voiceSelect.selectedIndex=p>=0?p:0;
+    }
+  }
+
+  // ===== LINK =====
+  async function fetchLink(){
+    let url=D.linkUrl.value.trim();
+    if(!url){toast('⚠️ 请输入链接');return;}
+    if(!/^https?:\/\//i.test(url)){url='https://'+url;D.linkUrl.value=url;}
+    D.linkStatus.className='status show load';D.linkStatusText.textContent='正在抓取...';
+    D.linkStatus.querySelector('.spin').style.display='';
+    try{
+      const r=await fetch('https://r.jina.ai/'+url,{headers:{Accept:'text/plain'}});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      let text=await r.text();
+      let title='';
+      const tm=text.match(/^Title:\s*(.+)$/m);
+      if(tm){title=tm[1].trim();text=text.replace(/^Title:\s*.+$/m,'').replace(/^\s*\n+/,'').trim();}
+      text=text.replace(/^#{1,6}\s+/gm,'').replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1');
+      text=text.replace(/`(.+?)`/g,'$1').replace(/!\[.*?\]\(.*?\)/g,'').replace(/\[(.+?)\]\(.*?\)/g,'$1');
+      text=text.replace(/\n{3,}/g,'\n\n').trim();
+      if(!text||text.length<20)throw new Error('内容太短');
+      D.linkUrl.dataset.content=text;D.linkUrl.dataset.title=title;
+      localStorage.setItem('ep-link-url',url);localStorage.setItem('ep-link-text',text);
+      localStorage.setItem('ep-link-title',title);
+      D.linkStatus.className='status show ok';D.linkStatusText.textContent='✅ 抓取成功！';
+      document.querySelector('#linkPanel .btn-out').style.display='';
+      renderSentences();toast('✅ 文章已生成');
+    }catch(e){
+      D.linkStatus.className='status show err';D.linkStatusText.textContent='❌ '+e.message;
+    }
+  }
+
+  // ===== OCR =====
+  let tesseractReady=false;
+  function loadOcrImg(file){
+    S.ocrImg=file;
+    const r=new FileReader();r.onload=e=>{
+      D.ocrPreviewImg.src=e.target.result;D.ocrPreviewWrap.classList.add('show');
+      document.querySelector('#ocrPanel .btn-out').style.display='';
+      D.ocrResult.style.display='none';D.ocrApplyActions.style.display='none';
+    };r.readAsDataURL(file);
+  }
+  function clearOcrImg(){
+    S.ocrImg=null;D.ocrPreviewWrap.classList.remove('show');D.ocrFile.value='';
+    document.querySelector('#ocrPanel .btn-out').style.display='none';
+    D.ocrResult.style.display='none';D.ocrApplyActions.style.display='none';
+  }
+  async function doOcr(){
+    if(!S.ocrImg){toast('⚠️ 请先导入截图');return;}
+    if(!tesseractReady){
+      D.ocrStatus.className='status show load';D.ocrStatusText.textContent='加载识别引擎(约4MB)...';
+      await new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        s.onload=resolve;s.onerror=()=>reject(new Error('引擎加载失败'));
+        document.head.appendChild(s);
+      });
+      tesseractReady=true;
+    }
+    D.ocrStatus.className='status show load';D.ocrStatusText.textContent='正在识别...';
+    try{
+      const r=await Tesseract.recognize(S.ocrImg,'eng',{
+        logger:i=>{if(i.status==='recognizing text')D.ocrStatusText.textContent=`识别中: ${Math.round(i.progress*100)}%`;}
+      });
+      const text=r.data.text.trim();
+      if(!text||text.length<3){D.ocrStatus.className='status show err';D.ocrStatusText.textContent='❌ 未识别到英文';return;}
+      D.ocrResult.value=text;D.ocrResult.style.display='block';D.ocrApplyActions.style.display='flex';
+      D.ocrStatus.className='status show ok';D.ocrStatusText.textContent='✅ 识别完成';
+    }catch(e){
+      D.ocrStatus.className='status show err';D.ocrStatusText.textContent='❌ '+e.message;
+    }
+  }
+
+  // ===== EVENTS =====
+  D.btnPlay.addEventListener('click',()=>{
+    if(S.sentences.length===0){toast('⚠️ 没有可播放的内容');return;}
+    unlockSpeech();S.playing=true;S.paused=false;S.curIdx=0;
+    highlight(0);updateUI();updateCtrls();speakOne(0,true);
+  });
+  D.btnPause.addEventListener('click',()=>{
+    if(S.paused){S.paused=false;S.playing=true;updateCtrls();speakOne(S.curIdx,true);}
+    else if(S.playing){pause();}
+  });
+  D.btnStop.addEventListener('click',()=>{stop();toast('⏹ 已停止')});
+  D.btnRepeat.addEventListener('click',()=>{
+    if(S.curIdx>=0&&S.curIdx<S.sentences.length){
+      unlockSpeech();try{window.speechSynthesis.cancel();}catch(e){}
+      currentUtterance=null;highlight(S.curIdx);speakOne(S.curIdx,S.playing&&!S.paused);
+    }else toast('请先点击一个句子');
+  });
+  D.speedSlider.addEventListener('input',()=>{S.rate=+D.speedSlider.value;D.speedVal.textContent=S.rate.toFixed(1)+'x'});
+  D.voiceSelect.addEventListener('change',()=>{});
+  D.themeBtn.addEventListener('click',()=>{
+    S.theme=S.theme==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',S.theme);
+    D.themeBtn.textContent=S.theme==='dark'?'☀️':'🌙';
+    localStorage.setItem('ep-theme',S.theme);
+  });
+
+  // Tabs
+  $$('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+  D.articleSelect.addEventListener('change',()=>{S.articleIdx=+D.articleSelect.value;renderSentences()});
+
+  // Custom text
+  D.customText.addEventListener('input',()=>{
+    localStorage.setItem('ep-custom',D.customText.value);
+  });
+  D.btnApplyCustom.addEventListener('click',()=>{renderSentences();toast('✅ 已应用')});
+  D.btnClearCustom.addEventListener('click',()=>{D.customText.value='';localStorage.removeItem('ep-custom');renderSentences()});
+
+  // Link
+  D.btnFetch.addEventListener('click',fetchLink);
+  D.linkUrl.addEventListener('keydown',e=>{if(e.key==='Enter')fetchLink()});
+  document.querySelector('#linkPanel .btn-out').addEventListener('click',()=>{
+    D.linkUrl.value='';delete D.linkUrl.dataset.content;delete D.linkUrl.dataset.title;
+    localStorage.removeItem('ep-link-url');localStorage.removeItem('ep-link-text');localStorage.removeItem('ep-link-title');
+    document.querySelector('#linkPanel .btn-out').style.display='none';
+    D.linkStatus.className='status';renderSentences();toast('已清除');
+  });
+
+  // OCR
+  D.dropZone.addEventListener('click',()=>D.ocrFile.click());
+  D.ocrFile.addEventListener('change',e=>{if(e.target.files[0])loadOcrImg(e.target.files[0])});
+  D.ocrPreviewRm.addEventListener('click',e=>{e.stopPropagation();clearOcrImg()});
+  D.dropZone.addEventListener('dragover',e=>{e.preventDefault();D.dropZone.style.borderColor='var(--pri)'});
+  D.dropZone.addEventListener('dragleave',()=>{D.dropZone.style.borderColor=''});
+  D.dropZone.addEventListener('drop',e=>{e.preventDefault();D.dropZone.style.borderColor='';if(e.dataTransfer.files[0])loadOcrImg(e.dataTransfer.files[0])});
+  document.addEventListener('paste',e=>{
+    if(S.tab!=='ocr')return;
+    if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT')return;
+    for(const it of e.clipboardData.items){if(it.type.startsWith('image/')){e.preventDefault();loadOcrImg(it.getAsFile());toast('📸 已粘贴');break;}}
+  });
+  D.btnOcrStart.addEventListener('click',doOcr);
+  D.btnApplyOcr.addEventListener('click',()=>{renderSentences();toast('✅ 已应用')});
+  document.querySelector('#ocrPanel .btn-out:nth-of-type(1)').addEventListener('click',clearOcrImg);
+
+  // Keyboard
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
+    if(e.key===' '){e.preventDefault();S.playing||S.paused?D.btnPause.click():D.btnPlay.click()}
+    else if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();if(S.curIdx<S.sentences.length-1)playSingle(S.curIdx+1)}
+    else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();if(S.curIdx>0)playSingle(S.curIdx-1)}
+    else if(e.key==='Escape'){e.preventDefault();stop()}
+    else if(e.key==='r'&&!e.ctrlKey){e.preventDefault();D.btnRepeat.click()}
+  });
+
+  // ===== INIT =====
+  function init(){
+    // Theme
+    if(localStorage.getItem('ep-theme')==='dark'){S.theme='dark';document.documentElement.setAttribute('data-theme','dark');D.themeBtn.textContent='☀️'}
+    // Article select
+    D.articleSelect.innerHTML=articles.map((a,i)=>{
+      const d={'初级':'🟢','中级':'🟡','中高级':'🟠'};
+      return `<option value="${i}">${d[a.diff]||''} ${a.title}</option>`;
+    }).join('');
+    // Voices
+    loadVoices();if(window.speechSynthesis.onvoiceschanged!==undefined)window.speechSynthesis.onvoiceschanged=loadVoices;
+    // Restore custom text
+    const ct=localStorage.getItem('ep-custom');if(ct)D.customText.value=ct;
+    // Restore link
+    const lu=localStorage.getItem('ep-link-url');const lt=localStorage.getItem('ep-link-text');
+    if(lu)D.linkUrl.value=lu;if(lt){D.linkUrl.dataset.content=lt;D.linkUrl.dataset.title=localStorage.getItem('ep-link-title')||'';document.querySelector('#linkPanel .btn-out').style.display=''}
+    // Unlock speech on first touch
+    document.addEventListener('click',unlockSpeech,{once:true});
+    document.addEventListener('touchend',unlockSpeech,{once:true});
+    // Render
+    renderSentences();
+  }
+  init();
+})();
+</script>
 </body>
 </html>
